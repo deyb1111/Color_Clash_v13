@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Neon-outlined cosmetic card.
+
+    Used by item_store_row.xml.  The stroke colour is tinted at runtime
+    by StoreActivity.StoreAdapter#onBindViewHolder based on the item's
+    asset_reference (e.g. "#FF4444" for Crimson Aura) so each card glows
+    in its own colour without needing 8 separate drawables.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Dark inner glass-panel fill -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#CC0A0820" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+
+    <!-- Inner neon ring (tinted at runtime via backgroundTintList) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke
+                android:width="2dp"
+                android:color="#FFFFFFFF" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+
+</layer-list>

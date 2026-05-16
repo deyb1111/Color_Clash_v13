@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Store screen — adaptive landscape layout that mirrors
-    activity_offline_setup.xml so the two screens read as siblings.
+    Store screen — neon arcade redesign that matches the reference layout
+    while reusing the bgoffline backdrop used by every other game screen.
+
+    Layout shape:
+
+        ╭──────────────────────────────────────────────────────────────╮
+        │  ▓ COLOR CLASH logo │  🛒 STORE  │       │ G  GOLD: 1250  ▓ │
+        │      ╭ 👤  Your player name ─────────────╮   ╭ LOAD ╮       │
+        │      ╰─────────────────────────────────╯   ╰──────╯        │
+        │              · · ·   ✦  FEATURED ITEMS  ✦   · · ·            │
+        │   ╭───╮ ╭───╮ ╭───╮ ╭───╮ ╭───╮ ╭───╮ ╭───╮ ╭───╮            │
+        │   │name│ │name│ │name│ │name│ │name│ │name│ │name│ │name│   │
+        │   │ ▣  │ │ ▣  │ │ ▣  │ │ ▣  │ │ ▣  │ │ ▣  │ │ ▣  │ │ ▣  │   │
+        │   │ G  │ │ G  │ │ G  │ │ G  │ │ G  │ │ G  │ │ G  │ │ G  │   │
+        │   ╰───╯ ╰───╯ ╰───╯ ╰───╯ ╰───╯ ╰───╯ ╰───╯ ╰───╯            │
+        │                       ╭ ← BACK ╮                            │
+        ╰──────────────────────────────────────────────────────────────╯
 
     Weight distribution (vertical):
-      logo spacer  : 22  (background image carries the logo)
-      subtitle     : 6
-      header card  : 14  (profile selector + gold balance)
-      items panel  : 46  (RecyclerView inside translucent card)
-      back button  : 9
-      bottom pad   : 3
+      logo spacer  : 10   (background image carries the COLOR CLASH wordmark)
+      header row   : 13   (STORE title + gold pill)
+      name row     : 13   (player selector + LOAD pill)
+      section line :  5   (✦ FEATURED ITEMS ✦)
+      cards row    : 46   (horizontal RecyclerView of cosmetic cards)
+      back button  : 10
+      bottom pad   :  3
     Total          : 100
 -->
 <FrameLayout
@@ -18,295 +34,249 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Full-screen background, matches Offline Mode -->
+    <!-- Full-screen background (same image used by offline_setup / multiplayer) -->
     <ImageView
-        android:id="@+id/bg_default"
+        android:id="@+id/store_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/bgoffline"
         android:scaleType="fitXY"
-        android:contentDescription="Store background" />
+        android:contentDescription="@null" />
 
-    <!-- Overlay: all UI content stacked vertically with weights -->
+    <!-- Overlay content stacked vertically with weights -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
-        <!-- Spacer: logo area (background handles the logo visually) -->
+        <!-- Logo spacer (bgoffline.png already paints the COLOR CLASH wordmark) -->
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="22" />
+            android:layout_weight="10" />
 
-        <!-- Subtitle (matches Offline Mode "✦  OFFLINE 2-PLAYER BATTLE  ✦") -->
-        <TextView
-            android:id="@+id/store_subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="6"
-            android:text="✦  STORE — COSMETICS &amp; TRAILS  ✦"
-            android:textColor="#E0DEFF"
-            android:textSize="10sp"
-            android:letterSpacing="0.14"
-            android:gravity="center"
-            android:shadowColor="#AA6600FF"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="8" />
-
-        <!-- Header card: profile selector + gold balance, styled like a player card -->
+        <!-- Header row: STORE title (center) + GOLD pill (right) -->
         <LinearLayout
-            android:id="@+id/store_header_card"
+            android:id="@+id/store_header_row"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="14"
+            android:layout_weight="13"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:baselineAligned="false"
-            android:background="@drawable/card_bg_default"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp">
+            android:baselineAligned="false">
 
-            <!-- Profile selector column -->
+            <!-- Gutter for the COLOR CLASH wordmark painted on the left of bgoffline -->
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3" />
+
+            <!-- 🛒 STORE -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:baselineAligned="false">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🛒"
+                    android:textSize="22sp"
+                    android:textColor="#FFFFFFFF"
+                    android:layout_marginEnd="8dp" />
+
+                <TextView
+                    android:id="@+id/store_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="STORE"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFFFF"
+                    android:letterSpacing="0.18"
+                    android:shadowColor="#FFB279FF"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="10" />
+            </LinearLayout>
+
+            <!-- GOLD: 1250 pill -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:gravity="end|center_vertical"
+                android:baselineAligned="false">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="👤  PROFILE"
-                    android:textStyle="bold"
-                    android:textColor="#CCCCCC"
-                    android:textSize="11sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SELECT PLAYER"
-                    android:textColor="#AAAAAA"
-                    android:textSize="8sp"
-                    android:letterSpacing="0.08"
-                    android:layout_marginTop="2dp" />
-
-                <!-- Profile spinner: same panel as offline EditText -->
-                <Spinner
-                    android:id="@+id/store_profile_spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:background="@drawable/edit_text_bg_default"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:layout_marginTop="3dp" />
-
-                <!-- No profiles hint -->
-                <TextView
-                    android:id="@+id/store_empty_hint"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="No profiles yet — play a game first!"
-                    android:textColor="#B9B9C8"
-                    android:textSize="11sp"
+                    android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="3dp"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-            <!-- Add profile button column -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_marginStart="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="NEW"
-                    android:textColor="#AAAAAA"
-                    android:textSize="8sp"
-                    android:letterSpacing="0.08" />
-
-                <Button
-                    android:id="@+id/store_add_profile_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:text="+ Add"
-                    android:textAllCaps="false"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp"
-                    android:minWidth="84dp"
-                    android:paddingStart="14dp"
+                    android:background="@drawable/store_gold_pill_bg"
+                    android:paddingStart="10dp"
                     android:paddingEnd="14dp"
-                    android:backgroundTint="#5C6BC0"
-                    app:cornerRadius="10dp"
-                    android:layout_marginTop="3dp" />
-            </LinearLayout>
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp">
 
-            <!-- Vertical divider, mirrors the VS badge spacing in offline_setup -->
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#33FFFFFF"
-                android:layout_marginStart="14dp"
-                android:layout_marginEnd="14dp"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="6dp" />
+                    <TextView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:background="@drawable/store_coin_bg"
+                        android:gravity="center"
+                        android:text="G"
+                        android:textColor="#FF3D2900"
+                        android:textStyle="bold"
+                        android:textSize="12sp" />
 
-            <!-- Gold balance column -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:orientation="vertical"
-                android:gravity="end">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="💰  WALLET"
-                    android:textStyle="bold"
-                    android:textColor="#CCCCCC"
-                    android:textSize="11sp"
-                    android:layout_gravity="end" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="GOLD BALANCE"
-                    android:textColor="#AAAAAA"
-                    android:textSize="8sp"
-                    android:letterSpacing="0.08"
-                    android:layout_marginTop="2dp"
-                    android:layout_gravity="end" />
-
-                <TextView
-                    android:id="@+id/store_gold_balance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Gold: —"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFDD22"
-                    android:shadowColor="#AAFFAA00"
-                    android:shadowDx="0"
-                    android:shadowDy="0"
-                    android:shadowRadius="6"
-                    android:layout_marginTop="3dp"
-                    android:layout_gravity="end" />
+                    <TextView
+                        android:id="@+id/store_gold_balance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="GOLD: —"
+                        android:textColor="#FFFFD23A"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:letterSpacing="0.08" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Items panel: translucent card hosting the RecyclerView -->
+        <!-- Name input row: 👤 player selector + LOAD pill -->
         <LinearLayout
-            android:id="@+id/store_items_panel"
+            android:id="@+id/store_input_row"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="46"
-            android:orientation="vertical"
-            android:background="@drawable/store_panel_bg"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginTop="6dp">
+            android:layout_weight="13"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:paddingStart="48dp"
+            android:paddingEnd="48dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="6dp">
 
-            <!-- Column header strip, mirrors the "CHOOSE COLOR" caption rows -->
+            <!-- Profile pill: 👤 + spinner / empty hint -->
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="6"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="4dp">
+                android:baselineAligned="false"
+                android:background="@drawable/store_input_pill_bg"
+                android:paddingStart="14dp"
+                android:paddingEnd="10dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PREVIEW"
-                    android:textColor="#AAAAAA"
-                    android:textSize="8sp"
-                    android:letterSpacing="0.08"
-                    android:minWidth="84dp" />
+                    android:text="👤"
+                    android:textSize="18sp"
+                    android:textColor="#FFFFFFFF"
+                    android:layout_marginEnd="8dp" />
+
+                <Spinner
+                    android:id="@+id/store_profile_spinner"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:popupBackground="#FF12102C" />
 
                 <TextView
+                    android:id="@+id/store_empty_hint"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="ITEM"
-                    android:textColor="#AAAAAA"
-                    android:textSize="8sp"
-                    android:letterSpacing="0.08"
-                    android:layout_marginStart="10dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="PRICE"
-                    android:textColor="#AAAAAA"
-                    android:textSize="8sp"
-                    android:letterSpacing="0.08"
-                    android:minWidth="56dp"
-                    android:gravity="end" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ACTION"
-                    android:textColor="#AAAAAA"
-                    android:textSize="8sp"
-                    android:letterSpacing="0.08"
-                    android:minWidth="86dp"
-                    android:gravity="end" />
+                    android:text="Your player name — play a game first"
+                    android:textColor="#FFB9B9C8"
+                    android:textSize="12sp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:visibility="gone" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#33FFFFFF" />
+            <Space
+                android:layout_width="14dp"
+                android:layout_height="match_parent" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/store_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:clipToPadding="false"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:scrollbars="vertical" />
+            <!-- LOAD pill (existing "+ Add profile" button restyled) -->
+            <Button
+                android:id="@+id/store_add_profile_btn"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:text="LOAD"
+                android:textColor="#FFFFFFFF"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:letterSpacing="0.18"
+                android:background="@drawable/store_action_pill_bg" />
+
         </LinearLayout>
 
-        <!-- Back button: mirrors the Start Battle button placement / scale -->
-        <Button
-            android:id="@+id/store_back"
+        <!-- ✦ FEATURED ITEMS ✦ divider -->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="9"
-            android:text="🏠  Back to Menu"
-            android:textAllCaps="false"
+            android:layout_weight="5"
+            android:gravity="center"
+            android:text="·  ·  ·    ✦  FEATURED ITEMS  ✦    ·  ·  ·"
+            android:textColor="#FFE0DEFF"
+            android:textSize="11sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
-            android:backgroundTint="#5C6BC0"
-            app:cornerRadius="14dp"
-            android:layout_marginStart="100dp"
-            android:layout_marginEnd="100dp"
-            android:layout_marginTop="6dp" />
+            android:letterSpacing="0.18"
+            android:shadowColor="#AA6600FF"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="10" />
 
-        <!-- Bottom padding -->
+        <!-- Horizontal cosmetic cards (RecyclerView) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/store_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="46"
+            android:clipToPadding="false"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:overScrollMode="never"
+            android:scrollbars="none" />
+
+        <!-- BACK pill (centered horizontally) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:baselineAligned="false">
+
+            <Button
+                android:id="@+id/store_back"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="170dp"
+                android:layout_height="48dp"
+                android:text="←  BACK"
+                android:textColor="#FFFFFFFF"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:letterSpacing="0.18"
+                android:background="@drawable/store_action_pill_bg" />
+        </LinearLayout>
+
+        <!-- Bottom safe-area pad -->
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"

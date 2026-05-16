@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.colorclash.database.DatabaseManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * StoreActivity — Problem 4 fix.
@@ -46,7 +47,9 @@ public class StoreActivity extends AppCompatActivity {
         profileSpinner  = findViewById(R.id.store_profile_spinner);
         emptyHint       = findViewById(R.id.store_empty_hint);
         recycler        = findViewById(R.id.store_recycler);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
+        // Horizontal swipeable card row, mirroring the reference store layout.
+        recycler.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.HORIZONTAL, false));
 
         // "+ Add" button
         Button addBtn = findViewById(R.id.store_add_profile_btn);
@@ -171,12 +174,29 @@ public class StoreActivity extends AppCompatActivity {
             h.typeText.setText(item.type.toUpperCase());
             h.typeText.setBackgroundColor(
                     "cosmetic".equals(item.type) ? 0xFF5C6BC0 : 0xFF00897B);
-            h.priceText.setText(item.priceGold + " 🪙");
+            h.priceText.setText(String.valueOf(item.priceGold));
+
+            // Preview image: drawable name derived from the item name
+            // ("Crimson Aura" -> "crimson_aura"). Hidden if no drawable found.
+            if (h.previewImage != null) {
+                String drawableName = item.name == null
+                        ? ""
+                        : item.name.toLowerCase(Locale.ROOT).replace(' ', '_');
+                int resId = h.itemView.getResources().getIdentifier(
+                        drawableName, "drawable", h.itemView.getContext().getPackageName());
+                if (resId != 0) {
+                    h.previewImage.setImageResource(resId);
+                    h.previewImage.setVisibility(View.VISIBLE);
+                } else {
+                    h.previewImage.setImageDrawable(null);
+                    h.previewImage.setVisibility(View.INVISIBLE);
+                }
+            }
 
             if (item.owned) {
                 h.buyBtn.setVisibility(View.GONE);
                 h.equipBtn.setVisibility(View.VISIBLE);
-                h.equipBtn.setText(item.equipped ? "Unequip" : "Equip");
+                h.equipBtn.setText(item.equipped ? "UNEQUIP" : "EQUIP");
                 h.equipBtn.setOnClickListener(v -> {
                     if (item.equipped) db.unequipItem(playerName, item.id, item.type);
                     else               db.equipItem(playerName,   item.id, item.type);
@@ -199,15 +219,19 @@ public class StoreActivity extends AppCompatActivity {
         @Override public int getItemCount() { return items.size(); }
 
         class VH extends RecyclerView.ViewHolder {
-            TextView nameText, typeText, priceText;
-            Button   buyBtn, equipBtn;
+            TextView  nameText, typeText, priceText;
+            Button    buyBtn, equipBtn;
+            ImageView previewImage;
+            View      card;
             VH(View v) {
                 super(v);
-                nameText  = v.findViewById(R.id.store_item_name);
-                typeText  = v.findViewById(R.id.store_item_type);
-                priceText = v.findViewById(R.id.store_item_price);
-                buyBtn    = v.findViewById(R.id.store_buy_btn);
-                equipBtn  = v.findViewById(R.id.store_equip_btn);
+                nameText     = v.findViewById(R.id.store_item_name);
+                typeText     = v.findViewById(R.id.store_item_type);
+                priceText    = v.findViewById(R.id.store_item_price);
+                buyBtn       = v.findViewById(R.id.store_buy_btn);
+                equipBtn     = v.findViewById(R.id.store_equip_btn);
+                previewImage = v.findViewById(R.id.store_item_preview);
+                card         = v.findViewById(R.id.store_item_card);
             }
         }
     }
