@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Translucent panel used to host the Store's scrollable item list.
+    Visually matches the player cards in activity_offline_setup.xml
+    (card_bg_default) so the Store feels like a sibling screen.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#14101020" />
+    <stroke android:width="2dp" android:color="#AAFFFFFF" />
+    <corners android:radius="16dp" />
+</shape>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Aura preview backdrop used inside Store item rows.
+    Renders a soft radial halo so users can see what a "Glow Aura"
+    cosmetic looks like behind the player ball icon.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <gradient
+        android:type="radial"
+        android:gradientRadius="34dp"
+        android:startColor="#88FFFFFF"
+        android:centerColor="#44FFFFFF"
+        android:endColor="#00FFFFFF" />
+</shape>
