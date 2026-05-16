@@ -1,99 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<!--
+    Join screen — adaptive landscape layout that mirrors
+    activity_offline_setup.xml.
+
+    Weight distribution (vertical):
+      logo spacer  : 18
+      subtitle     : 6
+      status       : 8
+      ip card      : 26  (IP input + hint)
+      connect btn  : 12
+      back button  : 10
+      bottom pad   : 20
+    Total          : 100
+-->
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#0D0D1A"
-    android:fitsSystemWindows="true"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
+    <!-- Full-screen background, matches Offline Mode -->
+    <ImageView
+        android:id="@+id/join_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bgoffline"
+        android:scaleType="fitXY"
+        android:contentDescription="Join background" />
+
+    <!-- Overlay: all UI content stacked vertically with weights -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:paddingStart="28dp"
-        android:paddingEnd="28dp"
-        android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <!-- Spacer: logo area -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="18" />
+
+        <!-- Subtitle -->
         <TextView
-            android:id="@+id/join_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📲 Join Game"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF" />
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:text="✦  JOIN GAME — ENTER HOST IP  ✦"
+            android:textColor="#E0DEFF"
+            android:textSize="10sp"
+            android:letterSpacing="0.14"
+            android:gravity="center"
+            android:shadowColor="#AA6600FF"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="8" />
 
+        <!-- Status banner (kept full-width to avoid cut-off status strings) -->
         <TextView
             android:id="@+id/join_status"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="8"
             android:text="Status: WAITING_FOR_PLAYER"
-            android:textSize="15sp"
+            android:textSize="13sp"
+            android:textStyle="bold"
             android:textColor="#64B5F6"
             android:gravity="center"
             android:maxLines="2"
-            android:layout_marginTop="10dp" />
+            android:ellipsize="end"
+            android:shadowColor="#AA0044FF"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="6"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp" />
 
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- IP entry card -->
+        <LinearLayout
             android:id="@+id/ip_layout"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Host IP Address"
-            android:layout_marginTop="18dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginEnd="40dp">
+            android:layout_height="0dp"
+            android:layout_weight="26"
+            android:orientation="vertical"
+            android:background="@drawable/card_bg_default"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <TextView
+                android:id="@+id/join_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📡  HOST CONNECTION"
+                android:textStyle="bold"
+                android:textColor="#CCCCCC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HOST IP ADDRESS"
+                android:textColor="#AAAAAA"
+                android:textSize="8sp"
+                android:letterSpacing="0.08"
+                android:layout_marginTop="3dp" />
+
+            <!-- Plain EditText keeps styling consistent with offline_setup; Java
+                 still uses findViewById(host_ip_input).getText() so the API is
+                 unchanged. -->
+            <EditText
                 android:id="@+id/host_ip_input"
                 android:layout_width="match_parent"
-                android:layout_height="46dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:hint="192.168.49.1"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textColorHint="#B9B9C8"
+                android:textSize="15sp"
+                android:fontFamily="monospace"
+                android:background="@drawable/edit_text_bg_default"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:singleLine="true"
                 android:inputType="textUri"
-                android:singleLine="true" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:gravity="center"
+                android:layout_marginTop="4dp" />
 
-        <TextView
-            android:id="@+id/ip_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Enter the host IP shown on the host screen"
-            android:textSize="12sp"
-            android:textColor="#9E9EBD"
-            android:gravity="center"
-            android:layout_marginTop="6dp" />
+            <TextView
+                android:id="@+id/ip_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enter the host IP shown on the host screen"
+                android:textSize="11sp"
+                android:textColor="#9E9EBD"
+                android:gravity="center"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
 
+        <!-- Connect button (info blue, matches Join button on the menu) -->
         <Button
             android:id="@+id/btn_connect"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="🔌 Connect"
+            android:layout_height="0dp"
+            android:layout_weight="12"
+            android:text="🔌  Connect"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:backgroundTint="#0D47A1"
             app:cornerRadius="14dp"
-            android:layout_marginTop="18dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginEnd="40dp" />
+            android:layout_marginStart="80dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginTop="6dp" />
 
+        <!-- Back button -->
         <Button
             android:id="@+id/btn_back_join"
-            android:layout_width="150dp"
-            android:layout_height="48dp"
-            android:text="← Back"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10"
+            android:text="🏠  Back to Menu"
+            android:textSize="14sp"
+            android:textStyle="bold"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#333355"
+            android:backgroundTint="#5C6BC0"
             app:cornerRadius="14dp"
-            android:layout_marginTop="18dp" />
+            android:layout_marginStart="120dp"
+            android:layout_marginEnd="120dp"
+            android:layout_marginTop="6dp" />
+
+        <!-- Bottom padding -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="20" />
 
     </LinearLayout>
-
-</ScrollView>
+</FrameLayout>

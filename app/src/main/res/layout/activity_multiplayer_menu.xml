@@ -1,96 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- activity_multiplayer_menu.xml -->
-<ScrollView
+<!--
+    Multiplayer Menu — adaptive landscape layout that mirrors
+    activity_offline_setup.xml so the screen feels native to the
+    rest of the Color Clash theme.
+
+    Weight distribution (vertical):
+      logo spacer  : 20  (background image carries the logo)
+      subtitle     : 6
+      name card    : 22  (player name input inside a card)
+      host button  : 12
+      join button  : 12
+      back button  : 10
+      bottom pad   : 18
+    Total          : 100
+-->
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#0D0D1A"
-    android:fitsSystemWindows="true"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
+    <!-- Full-screen background, matches Offline Mode -->
+    <ImageView
+        android:id="@+id/mp_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bgoffline"
+        android:scaleType="fitXY"
+        android:contentDescription="Multiplayer background" />
+
+    <!-- Overlay: all UI content stacked vertically with weights -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:paddingStart="40dp"
-        android:paddingEnd="40dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="24dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/mp_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📡 Multiplayer"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF" />
+        <!-- Spacer: logo area (background handles the logo visually) -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="20" />
 
+        <!-- Subtitle (matches Offline Mode "✦  OFFLINE 2-PLAYER BATTLE  ✦") -->
         <TextView
             android:id="@+id/mp_subtitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Connect via Hotspot"
-            android:textSize="14sp"
-            android:textColor="#66BB6A"
-            android:layout_marginTop="8dp" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/name_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="Your player name"
-            android:layout_marginTop="32dp">
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:text="✦  MULTIPLAYER — CONNECT VIA HOTSPOT  ✦"
+            android:textColor="#E0DEFF"
+            android:textSize="10sp"
+            android:letterSpacing="0.14"
+            android:gravity="center"
+            android:shadowColor="#AA6600FF"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="8" />
 
-            <com.google.android.material.textfield.TextInputEditText
+        <!-- Player Name card, styled like a player card in offline_setup -->
+        <LinearLayout
+            android:id="@+id/mp_name_card"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="22"
+            android:orientation="vertical"
+            android:background="@drawable/card_bg_default"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginStart="60dp"
+            android:layout_marginEnd="60dp">
+
+            <TextView
+                android:id="@+id/mp_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👤  YOUR NAME"
+                android:textStyle="bold"
+                android:textColor="#CCCCCC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ENTER NAME"
+                android:textColor="#AAAAAA"
+                android:textSize="8sp"
+                android:letterSpacing="0.08"
+                android:layout_marginTop="3dp" />
+
+            <EditText
                 android:id="@+id/multiplayer_player_name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:hint="Enter name"
                 android:textColor="#FFFFFF"
+                android:textColorHint="#B9B9C8"
+                android:textSize="14sp"
+                android:background="@drawable/edit_text_bg_default"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:singleLine="true"
                 android:inputType="textPersonName"
-                android:maxLength="12" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:maxLength="12"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="USED FOR BOTH HOST AND JOIN"
+                android:textColor="#9E9EBD"
+                android:textSize="8sp"
+                android:letterSpacing="0.08"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <!-- Host button (success green, mirrors Start Battle prominence) -->
         <Button
             android:id="@+id/btn_host"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="0dp"
+            android:layout_weight="12"
             android:text="🖥  Host a Game"
-            android:textSize="17sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:backgroundTint="#1B5E20"
             app:cornerRadius="14dp"
-            android:layout_marginTop="24dp" />
+            android:layout_marginStart="80dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginTop="6dp" />
 
+        <!-- Join button (info blue) -->
         <Button
             android:id="@+id/btn_join"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="0dp"
+            android:layout_weight="12"
             android:text="📲  Join a Game"
-            android:textSize="17sp"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:backgroundTint="#0D47A1"
             app:cornerRadius="14dp"
-            android:layout_marginTop="14dp" />
+            android:layout_marginStart="80dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginTop="6dp" />
 
+        <!-- Back button (indigo, matches other "back to menu" buttons) -->
         <Button
             android:id="@+id/btn_back_mp"
-            android:layout_width="150dp"
-            android:layout_height="48dp"
-            android:text="← Back"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10"
+            android:text="🏠  Back to Menu"
+            android:textSize="14sp"
+            android:textStyle="bold"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#333355"
+            android:backgroundTint="#5C6BC0"
             app:cornerRadius="14dp"
-            android:layout_marginTop="24dp" />
+            android:layout_marginStart="120dp"
+            android:layout_marginEnd="120dp"
+            android:layout_marginTop="6dp" />
+
+        <!-- Bottom padding -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="18" />
 
     </LinearLayout>
-
-</ScrollView>
+</FrameLayout>
