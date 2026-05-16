@@ -7,10 +7,10 @@
       logo spacer  : 18
       subtitle     : 6
       status       : 8
-      ip card      : 26  (IP input + hint)
+      ip card      : 34  (IP input + hint)
       connect btn  : 12
       back button  : 10
-      bottom pad   : 20
+      bottom pad   : 12
     Total          : 100
 -->
 <FrameLayout
@@ -55,42 +55,61 @@
             android:shadowDy="0"
             android:shadowRadius="8" />
 
-        <!-- Status banner (kept full-width to avoid cut-off status strings) -->
-        <TextView
-            android:id="@+id/join_status"
+        <!-- Status banner: width scales with screen via weighted spacers. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="8"
-            android:text="Status: WAITING_FOR_PLAYER"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#64B5F6"
-            android:gravity="center"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:shadowColor="#AA0044FF"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="6"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp" />
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
-        <!-- IP entry card -->
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/join_status"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="10"
+                android:text="Status: WAITING_FOR_PLAYER"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#64B5F6"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:shadowColor="#AA0044FF"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="6"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- IP entry card row: card width is proportional (~83%).
+             Weight bumped to 34 so the EditText inside has enough vertical
+             room for a comfortable tap target on small landscape phones. -->
         <LinearLayout
-            android:id="@+id/ip_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="26"
-            android:orientation="vertical"
-            android:background="@drawable/card_bg_default"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp">
+            android:layout_weight="34"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+
+            <LinearLayout
+                android:id="@+id/ip_layout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="10"
+                android:orientation="vertical"
+                android:background="@drawable/card_bg_default"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
 
             <TextView
                 android:id="@+id/join_title"
@@ -110,22 +129,24 @@
                 android:letterSpacing="0.08"
                 android:layout_marginTop="3dp" />
 
-            <!-- Plain EditText keeps styling consistent with offline_setup; Java
-                 still uses findViewById(host_ip_input).getText() so the API is
-                 unchanged. -->
+            <!-- Plain EditText keeps styling consistent with offline_setup;
+                 Java still uses findViewById(host_ip_input).getText() so the
+                 API is unchanged. Sized to its natural text height with a
+                 48dp floor so it stays a comfortable tap target on every
+                 device. -->
             <EditText
                 android:id="@+id/host_ip_input"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:hint="192.168.49.1"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#B9B9C8"
-                android:textSize="15sp"
+                android:textSize="16sp"
                 android:fontFamily="monospace"
                 android:background="@drawable/edit_text_bg_default"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:singleLine="true"
                 android:inputType="textUri"
                 android:gravity="center"
@@ -140,47 +161,70 @@
                 android:textColor="#9E9EBD"
                 android:gravity="center"
                 android:layout_marginTop="6dp" />
+            </LinearLayout>
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
         </LinearLayout>
 
-        <!-- Connect button (info blue, matches Join button on the menu) -->
-        <Button
-            android:id="@+id/btn_connect"
+        <!-- Connect button row: primary CTA at ~68% width. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="12"
-            android:text="🔌  Connect"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#0D47A1"
-            app:cornerRadius="14dp"
-            android:layout_marginStart="80dp"
-            android:layout_marginEnd="80dp"
-            android:layout_marginTop="6dp" />
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginTop="6dp">
 
-        <!-- Back button -->
-        <Button
-            android:id="@+id/btn_back_join"
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" />
+
+            <Button
+                android:id="@+id/btn_connect"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="8"
+                android:text="🔌  Connect"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#0D47A1"
+                app:cornerRadius="14dp" />
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" />
+        </LinearLayout>
+
+        <!-- Back button row: secondary CTA at ~58% width. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="10"
-            android:text="🏠  Back to Menu"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#5C6BC0"
-            app:cornerRadius="14dp"
-            android:layout_marginStart="120dp"
-            android:layout_marginEnd="120dp"
-            android:layout_marginTop="6dp" />
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginTop="6dp">
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="3" />
+
+            <Button
+                android:id="@+id/btn_back_join"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:text="🏠  Back to Menu"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#5C6BC0"
+                app:cornerRadius="14dp" />
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="3" />
+        </LinearLayout>
 
         <!-- Bottom padding -->
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="20" />
+            android:layout_weight="12" />
 
     </LinearLayout>
 </FrameLayout>

@@ -57,7 +57,7 @@
         <LinearLayout
             android:id="@+id/content_row"
             android:layout_width="match_parent"
-            android:layout_height="2dp"
+            android:layout_height="0dp"
             android:layout_weight="42"
             android:orientation="horizontal"
             android:gravity="center"
@@ -270,20 +270,39 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Start Battle button -->
-        <ImageView
-            android:id="@+id/start_game"
+        <!-- Start Battle row: button keeps a proportional width (~70%) so it
+             scales from small landscape phones up to wide tablets without
+             hard-coded side margins. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="12"
-            android:src="@drawable/btn_start_battle"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_marginStart="100dp"
-            android:layout_marginEnd="100dp"
-            android:layout_marginTop="4dp" />
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:baselineAligned="false"
+            android:layout_marginTop="4dp">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3" />
+
+            <ImageView
+                android:id="@+id/start_game"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="14"
+                android:src="@drawable/btn_start_battle"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3" />
+        </LinearLayout>
 
         <!-- Bottom padding -->
         <Space
