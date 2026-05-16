@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Small yellow coin chip used next to gold values in the store
+    (header gold badge + per-card price).
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="#FFFFC834" />
+    <stroke
+        android:width="1.5dp"
+        android:color="#FFA86A00" />
+</shape>

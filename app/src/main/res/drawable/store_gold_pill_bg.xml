@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Gold-bordered pill used by the "GOLD: 1250" badge in the store header.
+    Dark inner fill keeps the gold reading bright against the neon backdrop.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#CC0A0820" />
+    <stroke
+        android:width="2dp"
+        android:color="#FFFFC42E" />
+    <corners android:radius="18dp" />
+</shape>

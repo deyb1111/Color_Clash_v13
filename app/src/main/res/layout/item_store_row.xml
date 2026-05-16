@@ -1,179 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Store item row — visually matches the player cards used in
-    activity_offline_setup.xml (card_bg_default, white stroke,
-    rounded corners, captions in uppercase with letter-spacing).
+    One cosmetic card in the Store screen's horizontal RecyclerView.
 
-    Each row carries a dedicated effect-preview slot on the left
-    so players can see what a cosmetic does before buying or
-    equipping it:
+    The user's PNG drawables (drawable-nodpi/crimson_aura.png,
+    drawable-nodpi/fire_trail.png, etc.) already bake in the card border,
+    the cosmetic title and the cosmetic art, so this layout deliberately
+    avoids adding a second outer frame — the PNG IS the card.
 
-        Preview slot
-        ────────────
-        - A faint horizontal "trail" gradient strip
-          (shows what a Motion Trail looks like behind a ball)
-        - A radial "aura" halo
-          (shows what a Glow Aura looks like around a ball)
-        - A ball icon stacked on top
-          (stands in for the player's chosen ball)
+    Visual order (bottom of card carries the HUD overlay):
+        ┌────────────────┐
+        │   <PNG card>   │   ← @id/store_item_preview  (PNG)
+        │     name       │     │
+        │      art       │     │
+        │                │     │
+        │  ╭ G 100 BUY ╮ │   ← overlay pill (coin + price + buy/equip)
+        └────────────────┘
 
-    A small colour chip in the right-hand column previews the
-    item's asset_reference colour (defaults to the same red the
-    legacy layout used; future code may tint it per-item).
+    Every Java-visible @+id from the previous adapter is preserved with
+    the same View type so StoreActivity / StoreAdapter keep working —
+    we only stop drawing a redundant outer neon frame and we stop
+    tinting the card outline (each PNG already carries its own colour).
 -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:baselineAligned="false"
-    android:background="@drawable/card_bg_default"
-    android:paddingStart="10dp"
-    android:paddingEnd="10dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:layout_marginVertical="5dp"
-    android:layout_marginHorizontal="2dp">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/store_item_card"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_marginStart="6dp"
+    android:layout_marginEnd="6dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="2dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <!-- Effect preview slot: ball + aura halo + trail streak -->
-    <FrameLayout
-        android:layout_width="80dp"
-        android:layout_height="60dp"
-        android:background="@drawable/store_preview_frame"
-        android:padding="4dp">
+    <!-- Preview image: PNG from res/drawable-nodpi loaded by the adapter.
+         layout_height=match_parent + width=wrap_content + adjustViewBounds
+         lets the card size itself to the PNG's natural aspect ratio, so
+         the row of cards inherits the trading-card portrait shape. -->
+    <ImageView
+        android:id="@+id/store_item_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:contentDescription="@null" />
 
-        <!-- Trail streak (centered vertically, fades into the ball) -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp"
-            android:layout_gravity="center"
-            android:layout_marginEnd="24dp"
-            android:background="@drawable/store_trail_preview" />
-
-        <!-- Aura halo behind the ball -->
-        <View
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="end|center_vertical"
-            android:background="@drawable/store_aura_preview" />
-
-        <!-- Player ball stand-in -->
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_gravity="end|center_vertical"
-            android:layout_marginEnd="8dp"
-            android:src="@drawable/ball_blue"
-            android:scaleType="fitCenter"
-            android:contentDescription="Ball preview" />
-    </FrameLayout>
-
-    <!-- Name + type column -->
+    <!-- Bottom-anchored HUD overlay: dark rounded pill carrying the price
+         and Buy/Equip action. Sits inside the card's empty bottom band. -->
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:layout_marginStart="10dp">
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="14dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:baselineAligned="false"
+        android:background="@drawable/store_overlay_pill_bg"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp">
 
+        <!-- Yellow coin chip -->
         <TextView
-            android:id="@+id/store_item_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Item Name"
-            android:textSize="15sp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:background="@drawable/store_coin_bg"
+            android:gravity="center"
+            android:text="G"
+            android:textColor="#FF3D2900"
             android:textStyle="bold"
-            android:textColor="#FFFFFF" />
+            android:textSize="10sp" />
 
-        <LinearLayout
+        <!-- Price -->
+        <TextView
+            android:id="@+id/store_item_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="4dp">
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="10dp"
+            android:text="500"
+            android:textColor="#FFFFD23A"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:singleLine="true"
+            android:includeFontPadding="false" />
 
-            <!-- Type pill. Java overrides the background colour at bind time
-                 (cosmetic = #5C6BC0, trail = #00897B), so the runtime fill is
-                 a flat colour; the padding + letter-spacing give it the look
-                 of a small badge regardless. -->
-            <TextView
-                android:id="@+id/store_item_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="COSMETIC"
-                android:textSize="9sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"
-                android:letterSpacing="0.12"
-                android:background="#5C6BC0"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:paddingTop="2dp"
-                android:paddingBottom="2dp" />
+        <!-- Buy pill (shown when not owned) -->
+        <Button
+            android:id="@+id/store_buy_btn"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:minWidth="64dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="BUY"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            android:textSize="11sp"
+            android:letterSpacing="0.18"
+            android:background="@drawable/store_action_pill_bg" />
 
-            <!-- Asset colour chip — keeps the legacy "store_item_dot" id so the
-                 existing adapter doesn't break; future code can tint it per-item. -->
-            <View
-                android:id="@+id/store_item_dot"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:background="@drawable/store_chip_bg"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
+        <!-- Equip pill (shown when owned) -->
+        <Button
+            android:id="@+id/store_equip_btn"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:minWidth="64dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="EQUIP"
+            android:textColor="#FFFFFFFF"
+            android:textStyle="bold"
+            android:textSize="11sp"
+            android:letterSpacing="0.18"
+            android:visibility="gone"
+            android:background="@drawable/store_action_pill_bg" />
     </LinearLayout>
 
-    <!-- Price column -->
+    <!-- Hidden compat IDs — StoreAdapter still calls setText / setBackgroundColor
+         on these, but the PNG already shows the title and the type badge would
+         visually clash with the card art, so they stay invisible. -->
     <TextView
-        android:id="@+id/store_item_price"
+        android:id="@+id/store_item_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="50 🪙"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:textColor="#FFDD22"
-        android:shadowColor="#AAFFAA00"
-        android:shadowDx="0"
-        android:shadowDy="0"
-        android:shadowRadius="6"
-        android:minWidth="56dp"
-        android:gravity="end"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp" />
+        android:visibility="gone"
+        android:text="Item Name" />
 
-    <!-- Buy button (visible when item is not yet owned) -->
-    <Button
-        android:id="@+id/store_buy_btn"
+    <TextView
+        android:id="@+id/store_item_type"
         android:layout_width="wrap_content"
-        android:layout_height="38dp"
-        android:text="Buy"
-        android:textAllCaps="false"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:textSize="13sp"
-        android:minWidth="86dp"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:backgroundTint="#7B1FA2"
-        app:cornerRadius="10dp"
-        android:visibility="visible" />
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="COSMETIC" />
 
-    <!-- Equip / Unequip button (visible when item is owned) -->
-    <Button
-        android:id="@+id/store_equip_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="38dp"
-        android:text="Equip"
-        android:textAllCaps="false"
-        android:textStyle="bold"
-        android:textColor="#FFFFFF"
-        android:textSize="13sp"
-        android:minWidth="86dp"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
-        android:backgroundTint="#00897B"
-        app:cornerRadius="10dp"
+    <View
+        android:id="@+id/store_item_dot"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:visibility="gone" />
 
-</LinearLayout>
+</FrameLayout>
