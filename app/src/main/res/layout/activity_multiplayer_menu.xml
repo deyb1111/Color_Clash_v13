@@ -39,7 +39,7 @@
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="20" />
+            android:layout_weight="16" />
 
         <!-- Subtitle (matches Offline Mode "✦  OFFLINE 2-PLAYER BATTLE  ✦") -->
         <TextView
@@ -57,20 +57,33 @@
             android:shadowDy="0"
             android:shadowRadius="8" />
 
-        <!-- Player Name card, styled like a player card in offline_setup -->
+        <!-- Player Name card row: card sized proportionally (~76%) so it
+             scales with screen width instead of using hard 60dp margins.
+             Weight bumped to 28 so the EditText inside the card has enough
+             vertical room for a comfortable tap target. -->
         <LinearLayout
-            android:id="@+id/mp_name_card"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="22"
-            android:orientation="vertical"
-            android:background="@drawable/card_bg_default"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:layout_marginStart="60dp"
-            android:layout_marginEnd="60dp">
+            android:layout_weight="28"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3" />
+
+            <LinearLayout
+                android:id="@+id/mp_name_card"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="19"
+                android:orientation="vertical"
+                android:background="@drawable/card_bg_default"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
 
             <TextView
                 android:id="@+id/mp_title"
@@ -95,13 +108,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:minHeight="48dp"
                 android:hint="Enter name"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#B9B9C8"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:background="@drawable/edit_text_bg_default"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:singleLine="true"
                 android:inputType="textPersonName"
                 android:maxLength="12"
@@ -116,64 +130,100 @@
                 android:textSize="8sp"
                 android:letterSpacing="0.08"
                 android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3" />
         </LinearLayout>
 
-        <!-- Host button (success green, mirrors Start Battle prominence) -->
-        <Button
-            android:id="@+id/btn_host"
+        <!-- Host button row: button gets ~68% of screen width via weights. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="12"
-            android:text="🖥  Host a Game"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#1B5E20"
-            app:cornerRadius="14dp"
-            android:layout_marginStart="80dp"
-            android:layout_marginEnd="80dp"
-            android:layout_marginTop="6dp" />
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginTop="6dp">
 
-        <!-- Join button (info blue) -->
-        <Button
-            android:id="@+id/btn_join"
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" />
+
+            <Button
+                android:id="@+id/btn_host"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="8"
+                android:text="🖥  Host a Game"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#1B5E20"
+                app:cornerRadius="14dp" />
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" />
+        </LinearLayout>
+
+        <!-- Join button row -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="12"
-            android:text="📲  Join a Game"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#0D47A1"
-            app:cornerRadius="14dp"
-            android:layout_marginStart="80dp"
-            android:layout_marginEnd="80dp"
-            android:layout_marginTop="6dp" />
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginTop="6dp">
 
-        <!-- Back button (indigo, matches other "back to menu" buttons) -->
-        <Button
-            android:id="@+id/btn_back_mp"
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" />
+
+            <Button
+                android:id="@+id/btn_join"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="8"
+                android:text="📲  Join a Game"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#0D47A1"
+                app:cornerRadius="14dp" />
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" />
+        </LinearLayout>
+
+        <!-- Back button row: narrower at ~58% so it visually reads as secondary. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="10"
-            android:text="🏠  Back to Menu"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#5C6BC0"
-            app:cornerRadius="14dp"
-            android:layout_marginStart="120dp"
-            android:layout_marginEnd="120dp"
-            android:layout_marginTop="6dp" />
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginTop="6dp">
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="3" />
+
+            <Button
+                android:id="@+id/btn_back_mp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:text="🏠  Back to Menu"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#5C6BC0"
+                app:cornerRadius="14dp" />
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="3" />
+        </LinearLayout>
 
         <!-- Bottom padding -->
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="18" />
+            android:layout_weight="8" />
 
     </LinearLayout>
 </FrameLayout>

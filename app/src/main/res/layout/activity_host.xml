@@ -7,9 +7,9 @@
       logo spacer    : 18
       subtitle       : 6
       status banner  : 8
-      connection card: 36   (IP info + hint + progress)
+      connection card: 44   (IP info + hint + progress)
       back button    : 10
-      bottom pad     : 22
+      bottom pad     : 14
     Total            : 100
 -->
 <FrameLayout
@@ -54,42 +54,61 @@
             android:shadowDy="0"
             android:shadowRadius="8" />
 
-        <!-- Status banner: kept full-width so long status strings don't get cut off -->
-        <TextView
-            android:id="@+id/host_status"
+        <!-- Status banner: width scales with screen via weighted spacers. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="8"
-            android:text="Status: WAITING_FOR_PLAYER"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#66BB6A"
-            android:gravity="center"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:shadowColor="#AA00FF66"
-            android:shadowDx="0"
-            android:shadowDy="0"
-            android:shadowRadius="6"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp" />
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
-        <!-- Connection info card -->
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/host_status"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="10"
+                android:text="Status: WAITING_FOR_PLAYER"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#66BB6A"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:shadowColor="#AA00FF66"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="6"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Connection info card row: card width is proportional (~83%).
+             Weight bumped to 44 so the IP TextView has enough room to render
+             on small landscape phones (previous 36 left it clipped to ~6dp). -->
         <LinearLayout
-            android:id="@+id/host_info_card"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="36"
-            android:orientation="vertical"
-            android:background="@drawable/card_bg_default"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp">
+            android:layout_weight="44"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
+
+            <LinearLayout
+                android:id="@+id/host_info_card"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="10"
+                android:orientation="vertical"
+                android:background="@drawable/card_bg_default"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
 
             <TextView
                 android:id="@+id/host_title"
@@ -109,12 +128,15 @@
                 android:letterSpacing="0.08"
                 android:layout_marginTop="3dp" />
 
-            <!-- IP block (filled at runtime; uses the same panel style as the offline EditText) -->
+            <!-- IP block (filled at runtime; uses the same panel style as the
+                 offline EditText). Sized to its natural text height with a
+                 minHeight=48dp floor so it stays readable regardless of how
+                 much vertical space the card has. -->
             <TextView
                 android:id="@+id/host_ip_text"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="3"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:text=""
                 android:textSize="15sp"
                 android:textStyle="bold"
@@ -123,7 +145,10 @@
                 android:gravity="center"
                 android:visibility="gone"
                 android:background="@drawable/edit_text_bg_default"
-                android:padding="10dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:shadowColor="#AAFFAA00"
                 android:shadowDx="0"
                 android:shadowDy="0"
@@ -148,30 +173,43 @@
                 android:layout_height="36dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="6dp" />
+            </LinearLayout>
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" />
         </LinearLayout>
 
-        <!-- Back button -->
-        <Button
-            android:id="@+id/btn_back_host"
+        <!-- Back button row: ~58% width for the secondary CTA. -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="10"
-            android:text="🏠  Back to Menu"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#5C6BC0"
-            app:cornerRadius="14dp"
-            android:layout_marginStart="120dp"
-            android:layout_marginEnd="120dp"
-            android:layout_marginTop="6dp" />
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginTop="6dp">
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="3" />
+
+            <Button
+                android:id="@+id/btn_back_host"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:text="🏠  Back to Menu"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#5C6BC0"
+                app:cornerRadius="14dp" />
+
+            <Space android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="3" />
+        </LinearLayout>
 
         <!-- Bottom padding -->
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="22" />
+            android:layout_weight="14" />
 
     </LinearLayout>
 </FrameLayout>
