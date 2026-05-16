@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D0D1A"
+    android:fitsSystemWindows="true"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp">
+
+        <TextView
+            android:id="@+id/join_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📲 Join Game"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/join_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status: WAITING_FOR_PLAYER"
+            android:textSize="15sp"
+            android:textColor="#64B5F6"
+            android:gravity="center"
+            android:maxLines="2"
+            android:layout_marginTop="10dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/ip_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Host IP Address"
+            android:layout_marginTop="18dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/host_ip_input"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:inputType="textUri"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/ip_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enter the host IP shown on the host screen"
+            android:textSize="12sp"
+            android:textColor="#9E9EBD"
+            android:gravity="center"
+            android:layout_marginTop="6dp" />
+
+        <Button
+            android:id="@+id/btn_connect"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="🔌 Connect"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#0D47A1"
+            app:cornerRadius="14dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginEnd="40dp" />
+
+        <Button
+            android:id="@+id/btn_back_join"
+            android:layout_width="150dp"
+            android:layout_height="48dp"
+            android:text="← Back"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#333355"
+            app:cornerRadius="14dp"
+            android:layout_marginTop="18dp" />
+
+    </LinearLayout>
+
+</ScrollView>

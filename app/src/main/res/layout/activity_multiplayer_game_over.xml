@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D0D1A">
+
+    <TextView android:id="@+id/mp_result_text"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Result" android:textSize="48sp" android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="80dp"/>
+
+    <TextView android:id="@+id/mp_score_text"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Scores" android:textSize="22sp" android:textColor="#CCCCCC"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/mp_result_text" app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="32dp"/>
+
+    <TextView android:id="@+id/mp_gold_text"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Gold earned" android:textSize="20sp" android:textColor="#FFDD22"
+        app:layout_constraintTop_toBottomOf="@id/mp_score_text" app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="24dp"/>
+
+    <Button android:id="@+id/mp_btn_menu"
+        android:layout_width="0dp" android:layout_height="56dp"
+        android:text="🏠  Main Menu" android:textSize="17sp" android:textStyle="bold"
+        android:textAllCaps="false" android:textColor="#FFFFFF" android:backgroundTint="#5C6BC0"
+        app:cornerRadius="12dp"
+        app:layout_constraintTop_toBottomOf="@id/mp_gold_text" app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" android:layout_marginTop="48dp"
+        android:layout_marginHorizontal="60dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

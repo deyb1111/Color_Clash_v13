@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Wi-Fi P2P (hotspot multiplayer) -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Required for Wi-Fi Direct peer discovery on API 23+ -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Required for Wi-Fi Direct on API 33+ -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="33"
+        xmlns:tools="http://schemas.android.com/tools"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Color Clash"
+        android:theme="@style/Theme.ColorClash">
+
+        <!-- ── MAIN MENU (launcher) ── -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ── OFFLINE MODE ── -->
+        <activity
+            android:name=".OfflineSetupActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+        <activity
+            android:name=".GameActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+        <activity
+            android:name=".GameOverActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+        <!-- ── MULTIPLAYER ── -->
+        <activity
+            android:name=".MultiplayerMenuActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+        <activity
+            android:name=".HostActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+        <activity
+            android:name=".JoinActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+        <activity
+            android:name=".MultiplayerGameActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+        <activity
+            android:name=".MultiplayerGameOverActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+        <!-- ── STORE ── -->
+        <activity
+            android:name=".StoreActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ColorClash.NoActionBar"/>
+
+    </application>
+</manifest>

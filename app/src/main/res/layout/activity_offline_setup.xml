@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Fully adaptive landscape layout.
+    Uses layout_weight everywhere so every section scales
+    proportionally on any screen size / resolution.
+
+    Weight distribution (vertical):
+      logo spacer   : 35  (background image shows logo here)
+      subtitle      : 8
+      cards row     : 42
+      start button  : 12
+      bottom pad    : 3
+    Total           : 100
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Full-screen background -->
+    <ImageView
+        android:id="@+id/bg_default"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bgoffline"
+        android:scaleType="fitXY" />
+
+    <!-- Overlay: all UI content stacked vertically with weights -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Spacer: logo area (background handles the logo visually) -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="26" />
+
+        <!-- Subtitle -->
+        <TextView
+            android:id="@+id/subtitle_text"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="7"
+            android:text="✦  OFFLINE 2-PLAYER BATTLE  ✦"
+            android:textColor="#E0DEFF"
+            android:textSize="10sp"
+            android:letterSpacing="0.14"
+            android:gravity="center"
+            android:shadowColor="#AA6600FF"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="8" />
+
+        <!-- Cards row -->
+        <LinearLayout
+            android:id="@+id/content_row"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_weight="42"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp">
+
+            <!-- Player 1 Card -->
+            <LinearLayout
+                android:id="@+id/player1_card"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/card_bg_default"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:id="@+id/p1_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="👤  PLAYER 1"
+                    android:textStyle="bold"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ENTER NAME"
+                    android:textColor="#AAAAAA"
+                    android:textSize="8sp"
+                    android:letterSpacing="0.08"
+                    android:layout_marginTop="3dp" />
+
+                <EditText
+                    android:id="@+id/player1_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="18"
+                    android:hint="Enter name"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#B9B9C8"
+                    android:textSize="13sp"
+                    android:background="@drawable/edit_text_bg_default"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:singleLine="true"
+                    android:maxLength="12"
+                    android:layout_marginTop="3dp"
+                    android:gravity="center_vertical" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CHOOSE COLOR"
+                    android:textColor="#AAAAAA"
+                    android:textSize="8sp"
+                    android:letterSpacing="0.08"
+                    android:layout_marginTop="5dp" />
+
+                <!-- Balls: fill all remaining height -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="42"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:baselineAligned="false"
+                    android:layout_marginTop="3dp">
+
+                    <ImageView android:id="@+id/p1_red"
+                        android:layout_width="0dp" android:layout_height="match_parent"
+                        android:layout_weight="1" android:src="@drawable/ball_red"
+                        android:scaleType="fitCenter" android:clickable="true"
+                        android:focusable="true" android:padding="3dp" />
+                    <ImageView android:id="@+id/p1_green"
+                        android:layout_width="0dp" android:layout_height="match_parent"
+                        android:layout_weight="1" android:src="@drawable/ball_green"
+                        android:scaleType="fitCenter" android:clickable="true"
+                        android:focusable="true" android:padding="3dp" />
+                    <ImageView android:id="@+id/p1_blue"
+                        android:layout_width="0dp" android:layout_height="match_parent"
+                        android:layout_weight="1" android:src="@drawable/ball_blue"
+                        android:scaleType="fitCenter" android:clickable="true"
+                        android:focusable="true" android:padding="3dp" />
+                    <ImageView android:id="@+id/p1_yellow"
+                        android:layout_width="0dp" android:layout_height="match_parent"
+                        android:layout_weight="1" android:src="@drawable/ball_yellow"
+                        android:scaleType="fitCenter" android:clickable="true"
+                        android:focusable="true" android:padding="3dp" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center" android:layout_marginTop="2dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="R" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="10sp" android:gravity="center" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="G" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="10sp" android:gravity="center" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="B" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="10sp" android:gravity="center" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Y" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="10sp" android:gravity="center" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- VS Icon -->
+            <ImageView
+                android:id="@+id/vs_icon"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/vs_icon"
+                android:scaleType="fitCenter" />
+
+            <!-- Player 2 Card -->
+            <LinearLayout
+                android:id="@+id/player2_card"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/card_bg_default"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:id="@+id/p2_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="👤  PLAYER 2"
+                    android:textStyle="bold"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ENTER NAME"
+                    android:textColor="#AAAAAA"
+                    android:textSize="8sp"
+                    android:letterSpacing="0.08"
+                    android:layout_marginTop="3dp" />
+
+                <EditText
+                    android:id="@+id/player2_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="18"
+                    android:hint="Enter name"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#B9B9C8"
+                    android:textSize="13sp"
+                    android:background="@drawable/edit_text_bg_default"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:singleLine="true"
+                    android:maxLength="12"
+                    android:layout_marginTop="3dp"
+                    android:gravity="center_vertical" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CHOOSE COLOR"
+                    android:textColor="#AAAAAA"
+                    android:textSize="8sp"
+                    android:letterSpacing="0.08"
+                    android:layout_marginTop="5dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="42"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:baselineAligned="false"
+                    android:layout_marginTop="3dp">
+
+                    <ImageView android:id="@+id/p2_red"
+                        android:layout_width="0dp" android:layout_height="match_parent"
+                        android:layout_weight="1" android:src="@drawable/ball_red"
+                        android:scaleType="fitCenter" android:clickable="true"
+                        android:focusable="true" android:padding="3dp" />
+                    <ImageView android:id="@+id/p2_green"
+                        android:layout_width="0dp" android:layout_height="match_parent"
+                        android:layout_weight="1" android:src="@drawable/ball_green"
+                        android:scaleType="fitCenter" android:clickable="true"
+                        android:focusable="true" android:padding="3dp" />
+                    <ImageView android:id="@+id/p2_blue"
+                        android:layout_width="0dp" android:layout_height="match_parent"
+                        android:layout_weight="1" android:src="@drawable/ball_blue"
+                        android:scaleType="fitCenter" android:clickable="true"
+                        android:focusable="true" android:padding="3dp" />
+                    <ImageView android:id="@+id/p2_yellow"
+                        android:layout_width="0dp" android:layout_height="match_parent"
+                        android:layout_weight="1" android:src="@drawable/ball_yellow"
+                        android:scaleType="fitCenter" android:clickable="true"
+                        android:focusable="true" android:padding="3dp" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:gravity="center" android:layout_marginTop="2dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="R" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="10sp" android:gravity="center" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="G" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="10sp" android:gravity="center" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="B" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="10sp" android:gravity="center" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Y" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="10sp" android:gravity="center" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Start Battle button -->
+        <ImageView
+            android:id="@+id/start_game"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="12"
+            android:src="@drawable/btn_start_battle"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginStart="100dp"
+            android:layout_marginEnd="100dp"
+            android:layout_marginTop="4dp" />
+
+        <!-- Bottom padding -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3" />
+
+    </LinearLayout>
+</FrameLayout>

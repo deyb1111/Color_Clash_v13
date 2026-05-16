@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- Full-screen background image (4 balls, no text) -->
+    <ImageView
+        android:id="@+id/menu_bg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/menu_bg"
+        android:scaleType="centerCrop"
+        android:contentDescription="Background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Button width guides: 32% to 68% (36% of screen width) -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.32" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.68" />
+
+    <!-- Logo width guides: ~28% to ~72% (44% of screen width = ~20% wider than buttons) -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/logo_guide_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.20" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/logo_guide_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.80" />
+
+    <!-- Color Clash logo (top center, ~20% larger than buttons) -->
+    <ImageView
+        android:id="@+id/menu_logo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/logo_color_clash"
+        android:scaleType="fitCenter"
+        android:contentDescription="Color Clash"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_offline"
+        app:layout_constraintStart_toStartOf="@id/logo_guide_left"
+        app:layout_constraintEnd_toStartOf="@id/logo_guide_right"
+        app:layout_constraintVertical_bias="0.3" />
+
+    <!-- Offline Version button -->
+    <ImageView
+        android:id="@+id/btn_offline"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/btn_offline_bg"
+        android:scaleType="fitCenter"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Offline Version"
+        app:layout_constraintBottom_toTopOf="@id/btn_multiplayer"
+        app:layout_constraintStart_toStartOf="@id/guide_left"
+        app:layout_constraintEnd_toStartOf="@id/guide_right" />
+
+    <!-- Multiplayer Version button -->
+    <ImageView
+        android:id="@+id/btn_multiplayer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/btn_multiplayer_bg"
+        android:scaleType="fitCenter"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Multiplayer Version"
+        app:layout_constraintBottom_toTopOf="@id/btn_multiplayer_sub"
+        app:layout_constraintStart_toStartOf="@id/guide_left"
+        app:layout_constraintEnd_toStartOf="@id/guide_right" />
+
+    <!-- Connect via Hotspot subtitle -->
+    <TextView
+        android:id="@+id/btn_multiplayer_sub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connect via Hotspot"
+        android:textSize="10sp"
+        android:textColor="#66BB6A"
+        app:layout_constraintBottom_toTopOf="@id/btn_store"
+        app:layout_constraintStart_toStartOf="@id/guide_left"
+        app:layout_constraintEnd_toStartOf="@id/guide_right" />
+
+    <!-- Store button -->
+    <ImageView
+        android:id="@+id/btn_store"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/btn_store_bg"
+        android:scaleType="fitCenter"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Store"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guide_left"
+        app:layout_constraintEnd_toStartOf="@id/guide_right" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

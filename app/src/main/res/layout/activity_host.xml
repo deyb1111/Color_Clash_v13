@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D0D1A"
+    android:fitsSystemWindows="true"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="24dp">
+
+        <TextView
+            android:id="@+id/host_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🖥 Hosting Game"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF" />
+
+        <TextView
+            android:id="@+id/host_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status: WAITING_FOR_PLAYER"
+            android:textSize="15sp"
+            android:textColor="#66BB6A"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/host_ip_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="#FFEE44"
+            android:gravity="center"
+            android:visibility="gone"
+            android:background="#1A1A30"
+            android:padding="16dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp" />
+
+        <TextView
+            android:id="@+id/host_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Share the IP address with your opponent.\nThey enter it on the Join screen."
+            android:textSize="13sp"
+            android:textColor="#9E9EBD"
+            android:gravity="center"
+            android:layout_marginTop="20dp" />
+
+        <ProgressBar
+            android:id="@+id/host_progress"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="24dp" />
+
+        <Button
+            android:id="@+id/btn_back_host"
+            android:layout_width="150dp"
+            android:layout_height="48dp"
+            android:text="← Back"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#333355"
+            app:cornerRadius="14dp"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+
+</ScrollView>
