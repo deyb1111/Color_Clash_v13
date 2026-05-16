@@ -9,21 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-/**
- * GameClient — runs on the JOINING device.
- *
- * ROOT DISCONNECT FIX (same as GameServer):
- *
- * sendInput() is called from the UI thread on every ACTION_MOVE event —
- * potentially 60+ times per second. Writing directly from the UI thread
- * to a PrintWriter causes:
- *   a) checkError() false-positives under TCP back-pressure, triggering stop()
- *   b) concurrent access to the stream from UI thread and read thread's finally
- *
- * Fix: dedicated write thread with a bounded BlockingQueue (size 4).
- * sendInput() offers to the queue and returns immediately — never blocks,
- * never touches the stream directly. The write thread owns the stream.
- */
+
 public class GameClient {
 
     private static final String TAG = "GameClient";
@@ -37,7 +23,7 @@ public class GameClient {
         void onError(String message);
     }
 
-    // Names of optional packet types we now understand.
+
     private static final String MSG_INPUT    = "INPUT";
     private static final String MSG_PROFILE  = "PROFILE";
     private static final String MSG_DASH     = "DASH";
@@ -48,13 +34,11 @@ public class GameClient {
     private Thread  readThread;
     private Thread  writeThread;
 
-    // Bounded queue: touch events offer; write thread drains
     private final BlockingQueue<String> writeQueue = new LinkedBlockingQueue<>(4);
     private static final String POISON = "__STOP__";
 
     private volatile boolean    running = false;
     private final AtomicBoolean stopped = new AtomicBoolean(false);
-    // Track whether onDisconnected has been fired to prevent double-firing
     private final AtomicBoolean disconnectedFired = new AtomicBoolean(false);
 
     private volatile ClientListener listener;
@@ -94,8 +78,6 @@ public class GameClient {
         connectThread.start();
     }
 
-    // ── Write thread ─────────────────────────────────────────────────────────
-
     private void startWriteThread(Socket sock) {
         writeThread = new Thread(() -> {
             PrintWriter out = null;
@@ -134,12 +116,7 @@ public class GameClient {
         writeThread.start();
     }
 
-    // ── Send helpers ──────────────────────────────────────────────────────────
 
-    /**
-     * Offer an INPUT packet to the write queue. Never blocks, never throws.
-     * Safe to call from UI thread at high frequency.
-     */
     public void sendInput(float vx, float vy) {
         if (stopped.get()) return;
         try {
@@ -147,7 +124,6 @@ public class GameClient {
             j.put("type", MSG_INPUT);
             j.put("vx",   vx);
             j.put("vy",   vy);
-            // offer() drops silently if full — prevents back-pressure on UI thread
             boolean offered = writeQueue.offer(j.toString());
             if (!offered) Log.v(TAG, "Write queue full — INPUT dropped");
         } catch (JSONException e) {
@@ -155,33 +131,15 @@ public class GameClient {
         }
     }
 
-    /**
-     * Tells the host this player wants to dash.
-     * The host validates cooldown / movement and applies the dash if allowed.
-     * Best-effort: silently dropped if the write queue is full or socket is dead.
-     */
+
     public void sendDash() {
         sendSimple(MSG_DASH);
     }
 
-    /**
-     * Tells the host this player wants to activate their held power-up.
-     * No-op on the host if the slot is empty.
-     */
     public void sendActivate() {
         sendSimple(MSG_ACTIVATE);
     }
 
-    /**
-     * Sends the player's profile (name + equipped cosmetic / trail).
-     * Called once when the multiplayer game starts so the host can render
-     * the joining player's purchased cosmetics. The host echoes its own
-     * profile back inside STATE packets.
-     *
-     * @param name           Player's chosen name.
-     * @param cosmeticAsset  Equipped cosmetic asset_reference (e.g. "#FF4444") or null.
-     * @param trailAsset     Equipped trail asset_reference (e.g. "#88DDFF" / "#RAINBOW") or null.
-     */
     public void sendProfile(String name, String cosmeticAsset, String trailAsset) {
         if (stopped.get()) return;
         try {
@@ -190,8 +148,7 @@ public class GameClient {
             j.put("name",     name          != null ? name          : "");
             j.put("cosmetic", cosmeticAsset != null ? cosmeticAsset : "");
             j.put("trail",    trailAsset    != null ? trailAsset    : "");
-            // Profile packets are tiny and infrequent — block briefly if the
-            // queue is momentarily full so the host definitely receives them.
+
             try { writeQueue.put(j.toString()); }
             catch (InterruptedException ignored) {}
         } catch (JSONException e) {
@@ -211,7 +168,6 @@ public class GameClient {
         }
     }
 
-    // ── Read thread ───────────────────────────────────────────────────────────
 
     private void startReadLoop() {
         readThread = new Thread(() -> {
@@ -226,7 +182,6 @@ public class GameClient {
                 if (running) Log.d(TAG, "Read loop ended: " + e.getMessage());
             } finally {
                 Log.d(TAG, "Client read loop exiting");
-                // stop() will unblock the write thread; write thread fires disconnect
                 stop();
             }
         }, "GameClient-Read");
@@ -261,7 +216,6 @@ public class GameClient {
         }
     }
 
-    // ── Disconnect notification (fire exactly once) ───────────────────────────
 
     private void fireDisconnected() {
         if (!disconnectedFired.compareAndSet(false, true)) return;
@@ -272,7 +226,6 @@ public class GameClient {
         }
     }
 
-    // ── Stop ─────────────────────────────────────────────────────────────────
 
     public void stop() {
         if (!stopped.compareAndSet(false, true)) return;

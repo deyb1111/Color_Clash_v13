@@ -12,15 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * StoreActivity — Problem 4 fix.
- *
- * Profile system (Option B):
- *   - Spinner shows all saved player profiles instead of a free-text field.
- *   - "+ Add" button lets the player create a new profile on the spot.
- *   - Selecting a profile from the spinner instantly loads their gold + items.
- *   - Falls back gracefully if no profiles have been saved yet.
- */
+
 public class StoreActivity extends AppCompatActivity {
 
     private DatabaseManager db;
@@ -47,7 +39,6 @@ public class StoreActivity extends AppCompatActivity {
         profileSpinner  = findViewById(R.id.store_profile_spinner);
         emptyHint       = findViewById(R.id.store_empty_hint);
         recycler        = findViewById(R.id.store_recycler);
-        // Horizontal swipeable card row, mirroring the reference store layout.
         recycler.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.HORIZONTAL, false));
 
@@ -59,8 +50,6 @@ public class StoreActivity extends AppCompatActivity {
 
         setupSpinner();
     }
-
-    // ── Spinner ───────────────────────────────────────────────────────────────
 
     private void setupSpinner() {
         profileNames = new ArrayList<>(profileManager.getProfileNames());
@@ -78,7 +67,6 @@ public class StoreActivity extends AppCompatActivity {
             if (emptyHint != null) emptyHint.setVisibility(View.GONE);
             profileSpinner.setVisibility(View.VISIBLE);
 
-            // Auto-load the primary player's profile
             String primary = profileManager.getPrimaryName();
             int idx = profileNames.indexOf(primary);
             if (idx >= 0) profileSpinner.setSelection(idx);
@@ -93,7 +81,6 @@ public class StoreActivity extends AppCompatActivity {
                 @Override public void onNothingSelected(AdapterView<?> parent) {}
             });
 
-            // Load immediately for the initially selected profile
             playerName = profileNames.get(profileSpinner.getSelectedItemPosition());
             db.ensurePlayer(playerName);
             refreshStore();
@@ -116,7 +103,6 @@ public class StoreActivity extends AppCompatActivity {
         }
     }
 
-    // ── Add profile dialog ────────────────────────────────────────────────────
 
     private void showAddProfileDialog() {
         EditText input = new EditText(this);
@@ -143,7 +129,6 @@ public class StoreActivity extends AppCompatActivity {
                 .show();
     }
 
-    // ── Store content ─────────────────────────────────────────────────────────
 
     private void refreshStore() {
         if (playerName.isEmpty()) return;
@@ -152,8 +137,6 @@ public class StoreActivity extends AppCompatActivity {
         List<DatabaseManager.StoreItem> items = db.getStoreItems(playerName);
         recycler.setAdapter(new StoreAdapter(items));
     }
-
-    // ── RecyclerView Adapter ──────────────────────────────────────────────────
 
     private class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.VH> {
 
@@ -176,8 +159,6 @@ public class StoreActivity extends AppCompatActivity {
                     "cosmetic".equals(item.type) ? 0xFF5C6BC0 : 0xFF00897B);
             h.priceText.setText(String.valueOf(item.priceGold));
 
-            // Preview image: drawable name derived from the item name
-            // ("Crimson Aura" -> "crimson_aura"). Hidden if no drawable found.
             if (h.previewImage != null) {
                 String drawableName = item.name == null
                         ? ""

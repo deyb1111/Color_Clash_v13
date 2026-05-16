@@ -3,17 +3,7 @@ package com.example.colorclash.models;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-/**
- * Player — runtime state for one player.
- *
- * Adds (this revision):
- *   - Dash mechanic: tryDash() applies a short speed burst with cooldown.
- *   - Pending power-up slot: power-ups are no longer applied on contact;
- *     they go into pendingPowerUp and the player chooses when to activate.
- *   - Cosmetic / trail visuals: equippedCosmeticColor + equippedTrailAsset
- *     are read by the renderer to draw the player's purchased cosmetics.
- *   - Trail history points for trail rendering.
- */
+
 public class Player {
     public float x, y;
     public float vx, vy;
@@ -29,41 +19,27 @@ public class Player {
     public float speedMultiplier = 1f;
     public long speedBoostEndTime = 0;
 
-    // ── Dash ──────────────────────────────────────────────────────────────────
-    /** Multiplier applied on top of speedMultiplier while dashing. */
+
     public static final float DASH_MULTIPLIER       = 3.0f;
-    /** How long a dash lasts. */
     public static final long  DASH_DURATION_MS      = 220;
-    /** Cooldown between dashes (from dash start). */
     public static final long  DASH_COOLDOWN_MS      = 2000;
     public long dashEndTime      = 0;
     public long dashCooldownEnd  = 0;
 
-    // ── Pending power-up slot ────────────────────────────────────────────────
-    /** Type string of the held-but-not-yet-activated power-up, or null. */
     public String pendingPowerUp = null;
-    /** Slot color (mirrors the powerup color) for HUD rendering. */
     public int    pendingPowerUpColor = 0;
-    /** When the held power-up expires if not activated. */
     public long   pendingPowerUpExpiry = 0;
     public static final long PENDING_POWERUP_TTL_MS = 12_000;
 
-    // ── Equipped cosmetics (purely visual) ───────────────────────────────────
-    /** Aura color (parsed from store asset_reference like "#FF4444"). 0 = none. */
     public int    equippedCosmeticColor = 0;
-    /**
-     * Trail asset reference: "#RRGGBB" hex string, "#RAINBOW", or null.
-     * Kept as the raw string so the renderer can interpret "#RAINBOW".
-     */
+
     public String equippedTrailAsset = null;
 
-    /** Recent (x,y) samples used to draw a fading trail behind the player. */
     public final Deque<float[]> trailPoints = new ArrayDeque<>();
     private static final int    TRAIL_MAX_POINTS = 18;
     private static final long   TRAIL_SAMPLE_MS  = 35;
     private long lastTrailSampleTime = 0;
 
-    // Damage cooldown: player cannot be damaged again for 1 second after a hit
     private long damageCooldownEndTime = 0;
     private static final long DAMAGE_COOLDOWN_MS = 1000;
 
@@ -79,7 +55,6 @@ public class Player {
     public void update(long deltaTime, int screenWidth, int screenHeight) {
         long now = System.currentTimeMillis();
 
-        // Effective speed accounts for active dash burst.
         float dashBoost = (now < dashEndTime) ? DASH_MULTIPLIER : 1f;
         float effective = speedMultiplier * dashBoost;
 
@@ -95,13 +70,11 @@ public class Player {
         if (hitFlash && now > hitFlashTime) hitFlash = false;
         if (speedMultiplier > 1f && now > speedBoostEndTime) speedMultiplier = 1f;
 
-        // Pending powerup expires if not activated in time
         if (pendingPowerUp != null && now > pendingPowerUpExpiry) {
             pendingPowerUp = null;
             pendingPowerUpColor = 0;
         }
 
-        // Sample trail points
         if (now - lastTrailSampleTime >= TRAIL_SAMPLE_MS) {
             lastTrailSampleTime = now;
             trailPoints.addFirst(new float[]{x, y});
@@ -109,14 +82,11 @@ public class Player {
         }
     }
 
-    /**
-     * Returns true if damage was actually applied.
-     * Respects shield and the 1-second damage cooldown.
-     */
+
     public boolean takeDamage() {
         if (hasShield) return false;
         long now = System.currentTimeMillis();
-        if (now < damageCooldownEndTime) return false;   // still invulnerable
+        if (now < damageCooldownEndTime) return false;
         lives--;
         hitFlash = true;
         hitFlashTime = now + 300;
@@ -131,12 +101,6 @@ public class Player {
         return dist < (radius + other.radius);
     }
 
-    // ── Dash & power-up actions ──────────────────────────────────────────────
-
-    /**
-     * Attempt to dash. Succeeds only if cooldown has elapsed AND the player has
-     * a non-zero movement vector to dash along. Returns true if started.
-     */
     public boolean tryDash() {
         long now = System.currentTimeMillis();
         if (now < dashCooldownEnd) return false;
@@ -146,12 +110,10 @@ public class Player {
         return true;
     }
 
-    /** True while a dash burst is currently in effect. */
     public boolean isDashing() {
         return System.currentTimeMillis() < dashEndTime;
     }
 
-    /** Remaining dash cooldown as a 0..1 ratio (1 = full cooldown). */
     public float dashCooldownRatio() {
         long now = System.currentTimeMillis();
         long remaining = dashCooldownEnd - now;
@@ -159,10 +121,7 @@ public class Player {
         return Math.min(1f, remaining / (float) DASH_COOLDOWN_MS);
     }
 
-    /**
-     * Activates the held power-up (if any). Returns the activated type, or null
-     * if the slot was empty.
-     */
+
     public String activatePowerUp() {
         if (pendingPowerUp == null) return null;
         String t = pendingPowerUp;

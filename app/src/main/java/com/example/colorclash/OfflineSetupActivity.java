@@ -18,33 +18,20 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-/**
- * OfflineSetupActivity — player name + colour entry before an offline match.
- *
- * Works with the new design layout that uses:
- *   - EditText for player names  (NOT TextInputEditText)
- *   - ImageView balls for colour picking  (NOT RadioGroup)
- *   - ImageView for the Start Battle button  (NOT Button)
- *
- * Crash fix: the old version looked for RadioGroup / TextInputEditText which
- * no longer exist in the new layout, causing instant NullPointerException.
- */
+
 public class OfflineSetupActivity extends AppCompatActivity {
 
     private static final String TAG = "OfflineSetup";
 
-    // ── Views ─────────────────────────────────────────────────────────────────
     private EditText    player1Name, player2Name;
     private LinearLayout player1Card, player2Card;
 
     private ImageView p1Red, p1Green, p1Blue, p1Yellow;
     private ImageView p2Red, p2Green, p2Blue, p2Yellow;
 
-    // ── State ─────────────────────────────────────────────────────────────────
     private int player1Color = 0;   // 0 = nothing selected yet
     private int player2Color = 0;
 
-    // ── Colour tables ─────────────────────────────────────────────────────────
     private static final int[] COLORS = {
             0xFFFF0000,   // Red
             0xFF00FF00,   // Green
@@ -58,7 +45,6 @@ public class OfflineSetupActivity extends AppCompatActivity {
             0xFFFF3A3A, 0xFF3AFF3A, 0xFF3A8AFF, 0xFFFFDD3A
     };
 
-    // ─────────────────────────────────────────────────────────────────────────
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +64,6 @@ public class OfflineSetupActivity extends AppCompatActivity {
         setupStartButton();
     }
 
-    // ── View binding ──────────────────────────────────────────────────────────
 
     private void initViews() {
         player1Name = findViewById(R.id.player1_name);
@@ -103,7 +88,6 @@ public class OfflineSetupActivity extends AppCompatActivity {
         }
     }
 
-    // ── Colour picker ─────────────────────────────────────────────────────────
 
     private void setupColorPickers() {
         ImageView[] p1Balls = { p1Red, p1Green, p1Blue, p1Yellow };
@@ -112,7 +96,6 @@ public class OfflineSetupActivity extends AppCompatActivity {
         for (int i = 0; i < 4; i++) {
             final int index = i;
 
-            // Guard: ball view may be null if layout IDs don't match
             if (p1Balls[i] != null) {
                 addPressEffect(p1Balls[i]);
                 p1Balls[i].setOnClickListener(v -> {
@@ -135,10 +118,7 @@ public class OfflineSetupActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Highlights the selected ball by scaling it up.
-     * No ring/oval drawn — the scale difference makes the selection clear.
-     */
+
     private void highlightSelected(ImageView[] balls, ImageView selected) {
         for (ImageView ball : balls) {
             if (ball == null) continue;
@@ -172,7 +152,6 @@ public class OfflineSetupActivity extends AppCompatActivity {
         editText.setBackground(bg);
     }
 
-    // ── Start button ──────────────────────────────────────────────────────────
 
     private void setupStartButton() {
         ImageView startButton = findViewById(R.id.start_game);
@@ -228,7 +207,6 @@ public class OfflineSetupActivity extends AppCompatActivity {
         });
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private String safeGetText(EditText field) {
         if (field == null) return "";
@@ -237,7 +215,6 @@ public class OfflineSetupActivity extends AppCompatActivity {
         return text.toString().trim();
     }
 
-    /** Subtle press animation for any tappable view. */
     private void addPressEffect(View view) {
         view.setOnTouchListener((v, event) -> {
             switch (event.getAction()) {

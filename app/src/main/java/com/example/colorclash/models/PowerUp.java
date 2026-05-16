@@ -19,7 +19,6 @@ public class PowerUp {
         this.y = y;
         this.spawnTime = System.currentTimeMillis();
 
-        // Randomize type
         int roll = random.nextInt(3);
         if (roll == 0) { type = "SPEED"; color = Color.CYAN; }
         else if (roll == 1) { type = "SHIELD"; color = Color.MAGENTA; }
@@ -31,19 +30,11 @@ public class PowerUp {
     }
 
 
-    /**
-     * Apply this power-up's effect to the given player. Kept for backwards
-     * compatibility with code that already had a PowerUp instance.
-     */
     public void applyTo(Player player) {
         applyType(player, type);
     }
 
-    /**
-     * Apply a power-up by its type string. Used when the power-up was
-     * collected into Player.pendingPowerUp earlier and now needs to be
-     * activated without a PowerUp object around.
-     */
+
     public static void applyType(Player player, String typeStr) {
         if (player == null || typeStr == null) return;
         long now = System.currentTimeMillis();
@@ -58,7 +49,6 @@ public class PowerUp {
         }
     }
 
-    /** Looks up the canonical color for a power-up type string. */
     public static int colorForType(String typeStr) {
         if ("SPEED".equals(typeStr))  return Color.CYAN;
         if ("SHIELD".equals(typeStr)) return Color.MAGENTA;

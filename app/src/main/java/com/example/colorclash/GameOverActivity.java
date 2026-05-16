@@ -7,18 +7,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.colorclash.database.DatabaseManager;
 
-/**
- * GameOverActivity (modified).
- *
- * Additions vs. original:
- *   - Saves the match result to the SQLite database.
- *   - Converts scores to gold and saves to player profiles.
- *   - "Play Again" returns to the Main Menu (not OfflineSetup) so players
- *     can choose mode again.
- */
 public class GameOverActivity extends AppCompatActivity {
 
-    /** Gold conversion: 1 gold per 10 score points. */
     private static final int GOLD_PER_POINT_DIVISOR = 10;
 
     @Override
@@ -32,13 +22,12 @@ public class GameOverActivity extends AppCompatActivity {
         int    loserScore  = getIntent().getIntExtra("loser_score",  0);
         int    winnerColor = getIntent().getIntExtra("winner_color", 0xFFFFFFFF);
 
-        // ── Save to database ─────────────────────────────────────────────────
         int winnerGold = winnerScore / GOLD_PER_POINT_DIVISOR;
         int loserGold  = loserScore  / GOLD_PER_POINT_DIVISOR;
 
         try {
             DatabaseManager db = DatabaseManager.getInstance(this);
-            // Ensure player profiles exist (upsert)
+            // Ensure player profiles exist
             db.ensurePlayer(winner);
             db.ensurePlayer(loser);
             // Persist match + gold

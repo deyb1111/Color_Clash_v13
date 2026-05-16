@@ -13,13 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.colorclash.models.Player;
 import com.example.colorclash.views.GameView;
 
-/**
- * GameActivity - hosts the GameView and wires up player data + game-over callback.
- *
- * FIX: The original was a placeholder that just showed a TextView.
- * It now inflates activity_game.xml (which contains the GameView),
- * passes player data in, and listens for the game-over event.
- */
 public class GameActivity extends AppCompatActivity implements GameView.GameListener {
 
     private GameView  gameView;
@@ -28,7 +21,6 @@ public class GameActivity extends AppCompatActivity implements GameView.GameList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Keep screen on during gameplay
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Hide navigation bar and status bar
@@ -40,10 +32,8 @@ public class GameActivity extends AppCompatActivity implements GameView.GameList
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
 
-        // FIX: Inflate the real layout that contains GameView
         setContentView(R.layout.activity_game);
 
-        // Get player data from MainActivity
         String p1Name  = getIntent().getStringExtra("player1_name");
         String p2Name  = getIntent().getStringExtra("player2_name");
         int    p1Color = getIntent().getIntExtra("player1_color", 0xFFFF0000);
@@ -55,10 +45,6 @@ public class GameActivity extends AppCompatActivity implements GameView.GameList
         gameView.setGameListener(this);
     }
 
-    /**
-     * Called when the attack color changes — tint the frame to match.
-     * Uses a brighter version of the attack color so the frame glows.
-     */
     @Override
     public void onExit() {
         // Return to main menu
@@ -70,10 +56,6 @@ public class GameActivity extends AppCompatActivity implements GameView.GameList
         // Frame removed — no tinting needed
     }
 
-    /**
-     * Called by GameView (via post()) when one player runs out of lives.
-     * Launches GameOverActivity with winner/loser info.
-     */
     @Override
     public void onGameOver(Player winner, Player loser) {
         Intent intent = new Intent(this, GameOverActivity.class);
@@ -86,7 +68,6 @@ public class GameActivity extends AppCompatActivity implements GameView.GameList
         finish();
     }
 
-    // Pause/resume the game thread with the Activity lifecycle
     @Override
     protected void onPause() {
         super.onPause();
