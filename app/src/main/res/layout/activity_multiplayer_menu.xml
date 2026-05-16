@@ -39,7 +39,7 @@
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="20" />
+            android:layout_weight="16" />
 
         <!-- Subtitle (matches Offline Mode "✦  OFFLINE 2-PLAYER BATTLE  ✦") -->
         <TextView
@@ -58,11 +58,13 @@
             android:shadowRadius="8" />
 
         <!-- Player Name card row: card sized proportionally (~76%) so it
-             scales with screen width instead of using hard 60dp margins. -->
+             scales with screen width instead of using hard 60dp margins.
+             Weight bumped to 28 so the EditText inside the card has enough
+             vertical room for a comfortable tap target. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="22"
+            android:layout_weight="28"
             android:orientation="horizontal"
             android:baselineAligned="false">
 
@@ -106,13 +108,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
+                android:minHeight="48dp"
                 android:hint="Enter name"
                 android:textColor="#FFFFFF"
                 android:textColorHint="#B9B9C8"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:background="@drawable/edit_text_bg_default"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
                 android:singleLine="true"
                 android:inputType="textPersonName"
                 android:maxLength="12"
@@ -220,7 +223,7 @@
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="18" />
+            android:layout_weight="8" />
 
     </LinearLayout>
 </FrameLayout>
