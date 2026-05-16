@@ -15,16 +15,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.colorclash.network.GameClient;
 
-/**
- * JoinActivity
- *
- * The joining player enters the host's IP (shown on the host's screen) and
- * connects. The standard Wi-Fi Direct group owner IP is 192.168.49.1 on
- * Android — pre-filled for convenience.
- *
- * Connection states: WAITING_FOR_PLAYER → CONNECTED → (game starts)
- *                    CONNECTION_FAILED, RECONNECTING on error
- */
+
 public class JoinActivity extends AppCompatActivity {
 
     private static final String TAG = "JoinActivity";
@@ -78,8 +69,8 @@ public class JoinActivity extends AppCompatActivity {
                     launchGame(ip);
                 });
             }
-            @Override public void onStateReceived(org.json.JSONObject state) { /* handled in game */ }
-            @Override public void onGameOver(String w, String l, int ws, int ls) { /* handled in game */ }
+            @Override public void onStateReceived(org.json.JSONObject state)  {}
+            @Override public void onGameOver(String w, String l, int ws, int ls) {}
             @Override public void onDisconnected() {
                 mainHandler.post(() -> handleDisconnect(ip));
             }
@@ -125,6 +116,5 @@ public class JoinActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Don't stop client here — it's passed to MultiplayerGameActivity
     }
 }

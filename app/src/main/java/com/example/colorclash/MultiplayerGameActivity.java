@@ -24,41 +24,6 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * MultiplayerGameActivity — host-authoritative multiplayer game.
- *
- * FIX SUMMARY (this revision)
- * ───────────────────────────
- * 1. DAMAGE COLOR MISMATCH FIXED:
- *    checkHostCollisions() now compares each player's color against
- *    PLAYER1_DRAW_COLOR / PLAYER2_DRAW_COLOR — the same ints used to draw the
- *    circles — rather than bgColors[]. bgColors[] values (0xFFFF0000 etc.) never
- *    matched the player draw colors (0xFFFF4444 / 0xFF4488FF), so damage was
- *    never applied. The logic is: if an attacker's circle color visually matches
- *    the background color family (RED↔RED, GREEN↔GREEN, BLUE↔BLUE, YELLOW↔YELLOW),
- *    they can damage the defender. We do this with a simple bgIndex→attackerIsP1
- *    table: P1 is RED and attacks on RED background; P2 is BLUE and attacks on
- *    BLUE background; GREEN and YELLOW backgrounds are neutral (no damage, just
- *    pushback). Adjust this table to match your intended game rules.
- *
- * 2. POWERUPS NOT VISIBLE ON CLIENT FIXED:
- *    - sendStateToClient() passes the live powerUps list to GameServer.sendGameState().
- *    - applyState() parses the "powerups" JSON array and stores them in
- *      clientPowerUps (a CopyOnWriteArrayList for safe cross-thread access).
- *    - render() draws clientPowerUps on the client side using a lightweight
- *      drawPowerUp() helper (no PowerUp object needed — just x, y, type, color).
- *    - The client NEVER applies powerup effects; only the host does.
- *
- * 3. DAMAGE COOLDOWN:
- *    Player.takeDamage() now enforces a 1-second invulnerability window so a
- *    single collision can't drain all lives at once.
- *
- * 4. All other stability fixes from the previous revision are preserved:
- *    - Dedicated write threads in GameServer / GameClient.
- *    - Virtual world coordinate system (WORLD_W=1220, WORLD_H=686).
- *    - onPause() keeps TCP alive.
- *    - gameOverNavigated AtomicBoolean guard.
- */
 public class MultiplayerGameActivity extends AppCompatActivity
         implements SurfaceHolder.Callback {
 
@@ -67,7 +32,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
     public static volatile GameServer sharedServer;
     public static volatile GameClient sharedClient;
 
-    // ── Virtual world (landscape) ─────────────────────────────────────────────
     private static final float WORLD_W    = 1220f;
     private static final float WORLD_H    =  686f;
     private static final float HUD_TOP    =  48f;
@@ -78,49 +42,36 @@ public class MultiplayerGameActivity extends AppCompatActivity
     private static final float JOY_KNOB   =  48f;
     private static final float PLAYER_R   =  55f;
 
-    // ── Action buttons (dash + activate) ──────────────────────────────────────
+
     private static final float BTN_RADIUS = 60f;
     private static final float BTN_DASH_CX = WORLD_W - 110f;
     private static final float BTN_DASH_CY = WORLD_H - 110f;
     private static final float BTN_ACT_CX  = WORLD_W - 250f;
     private static final float BTN_ACT_CY  = WORLD_H - 110f;
 
-    /**
-     * The colors used to DRAW each player's circle.
-     * These are the values checkHostCollisions() compares against bgIndex
-     * to decide who is the attacker.
-     */
+
     private static final int PLAYER1_DRAW_COLOR = 0xFFFF4444;  // reddish
     private static final int PLAYER2_DRAW_COLOR = 0xFF4488FF;  // bluish
 
-    // ── Role ──────────────────────────────────────────────────────────────────
     private boolean isHost;
     private String  myName;
     private volatile String opponentName = "Opponent";
 
-    // ── Local profile (own cosmetic / trail loaded from DB) ──────────────────
     private String myCosmetic = "";
     private String myTrail    = "";
 
-    // ── Opponent profile (received over the wire) ────────────────────────────
     private volatile String opponentCosmetic = "";
     private volatile String opponentTrail    = "";
 
-    // ── Network ───────────────────────────────────────────────────────────────
     private GameServer server;
     private GameClient client;
     private static final int STATE_SEND_MS = 50;
     private long lastStateSend = 0;
 
-    // ── Host game state (world coords) ────────────────────────────────────────
     private Player        hostP1, hostP2;
     private List<PowerUp> powerUps = new ArrayList<>();
     private Random        random   = new Random();
 
-    /**
-     * Background color indices and their full-screen colors.
-     * Index:  0=RED   1=GREEN   2=BLUE   3=YELLOW
-     */
     private final int[] bgColors  = {Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW};
     private int         bgIndex   = 0;
     private long        nextBgChange;
@@ -131,7 +82,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
 
     private final AtomicBoolean gameOverNavigated = new AtomicBoolean(false);
 
-    // ── Shared render state ───────────────────────────────────────────────────
     private volatile float r_p1nx   = 0.25f, r_p1ny = 0.5f;
     private volatile float r_p2nx   = 0.75f, r_p2ny = 0.5f;
     private volatile int   r_p1lives = 5,     r_p2lives = 5;
@@ -139,7 +89,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
     private volatile int   r_bgIndex = 0;
     private volatile float r_timer   = 10f;
 
-    // Names + cosmetics carried through the render-state (used by the client).
     private volatile String r_p1name  = "";
     private volatile String r_p2name  = "";
     private volatile String r_p1cos   = "";
@@ -147,7 +96,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
     private volatile String r_p1trail = "";
     private volatile String r_p2trail = "";
 
-    // Held power-up slot + dashing state for HUD / button rendering.
     private volatile String r_p1pending     = "";
     private volatile int    r_p1pendingCol  = 0;
     private volatile String r_p2pending     = "";
@@ -155,14 +103,9 @@ public class MultiplayerGameActivity extends AppCompatActivity
     private volatile boolean r_p1dashing    = false;
     private volatile boolean r_p2dashing    = false;
 
-    /** True while the local player's dash cooldown is still running (used to fade the button). */
     private volatile long localDashCooldownEnd = 0;
 
-    /**
-     * Client-side render-only powerup snapshot.
-     * Populated from the STATE packet; never used for game logic.
-     * CopyOnWriteArrayList because the network thread writes and render reads.
-     */
+
     private static final class PUSnapshot {
         float x, y;
         String type;
@@ -173,17 +116,14 @@ public class MultiplayerGameActivity extends AppCompatActivity
     }
     private final CopyOnWriteArrayList<PUSnapshot> clientPowerUps = new CopyOnWriteArrayList<>();
 
-    // ── Joystick (world coords) ───────────────────────────────────────────────
     private float   joyX = JOY_CX, joyY = JOY_CY;
     private float   joyCX = JOY_CX, joyCY = JOY_CY;
     private boolean joying = false;
     private int     joyPtr = -1;
     private float   myVx = 0, myVy = 0;
 
-    // ── Canvas transform ──────────────────────────────────────────────────────
     private float scale = 1f, offsetX = 0f, offsetY = 0f;
 
-    // ── Rendering ─────────────────────────────────────────────────────────────
     private SurfaceView   surface;
     private SurfaceHolder holder;
     private Thread        gameThread;
@@ -202,8 +142,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
     private final String[] colorNames = {"RED", "GREEN", "BLUE", "YELLOW"};
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-
-    // ─────────────────────────────────────────────────────────────────────────
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,7 +162,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         isHost = "HOST".equals(getIntent().getStringExtra("role"));
         Log.d(TAG, "onCreate role=" + (isHost ? "HOST" : "CLIENT") + " name=" + myName);
 
-        // Look up this player's purchased cosmetics so they render in-game.
         try {
             DatabaseManager db = DatabaseManager.getInstance(getApplicationContext());
             db.ensurePlayer(myName);
@@ -244,7 +181,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         else        setupClient();
     }
 
-    // ── Host setup ────────────────────────────────────────────────────────────
 
     private void setupHost() {
         server = sharedServer;
@@ -293,7 +229,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         Log.d(TAG, "Host setup done");
     }
 
-    // ── Client setup ──────────────────────────────────────────────────────────
 
     private void setupClient() {
         client = sharedClient;
@@ -305,7 +240,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         }
         client.setListener(new GameClient.ClientListener() {
             @Override public void onConnected() {
-                // Send our profile so the host can render our cosmetic / trail.
                 client.sendProfile(myName, myCosmetic, myTrail);
             }
             @Override public void onStateReceived(JSONObject state) { applyState(state); }
@@ -324,8 +258,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         });
         Log.d(TAG, "Client setup done");
     }
-
-    // ── SurfaceHolder callbacks ───────────────────────────────────────────────
 
     @Override
     public void surfaceCreated(SurfaceHolder h) {
@@ -369,8 +301,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         stopGameThread();
     }
 
-    // ── Thread management ─────────────────────────────────────────────────────
-
     private void startGameThread() {
         synchronized (threadLock) {
             if (running) return;
@@ -390,8 +320,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
             gameThread = null;
         }
     }
-
-    // ── Game loop ─────────────────────────────────────────────────────────────
 
     private long lastTime = 0;
 
@@ -416,8 +344,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         }
         Log.d(TAG, "gameLoop exited");
     }
-
-    // ── Host update ───────────────────────────────────────────────────────────
 
     private void hostUpdate(long dt) {
         if (gameOver || hostP1 == null || hostP2 == null) return;
@@ -459,20 +385,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         return next;
     }
 
-    /**
-     * Collision and damage — host-authoritative.
-     *
-     * Attack rules (tied to player draw color):
-     *   bgIndex 0 = RED    → P1 (red)    is attacker; P2 takes damage
-     *   bgIndex 1 = GREEN  → neutral; neither player deals damage
-     *   bgIndex 2 = BLUE   → P2 (blue)   is attacker; P1 takes damage
-     *   bgIndex 3 = YELLOW → neutral; neither player deals damage
-     *
-     * Adjust this table to match your intended game design.
-     *
-     * Player.takeDamage() now has a 1-second cooldown so one collision
-     * event can't drain multiple lives.
-     */
     private void checkHostCollisions() {
         if (hostP1.collidesWith(hostP2)) {
             boolean p1Attacks = (bgIndex == 0); // RED bg → P1 (red circle) attacks
@@ -493,12 +405,9 @@ public class MultiplayerGameActivity extends AppCompatActivity
                             + " P1lives=" + hostP1.lives);
                 }
             }
-            // Neutral background (GREEN/YELLOW) — no damage, no pushback.
-            // Matches offline GameView behaviour.
         }
 
-        // Power-up collection — drops into the player's slot instead of
-        // auto-applying so the player can press the Activate button when ready.
+
         Iterator<PowerUp> it = powerUps.iterator();
         while (it.hasNext()) {
             PowerUp p = it.next();
@@ -512,7 +421,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
                 it.remove();
             }
         }
-        // Avoid Collection#removeIf (API 24+); minSdk is 23.
         Iterator<PowerUp> exp = powerUps.iterator();
         while (exp.hasNext()) {
             if (exp.next().isExpired()) exp.remove();
@@ -550,7 +458,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         r_p1lives = hostP1.lives;         r_p2lives = hostP2.lives;
         r_p1score = hostP1.score;         r_p2score = hostP2.score;
         r_bgIndex = bgIndex;              r_timer   = bgTimer;
-        // Problem 1 fix: keep opponentName in sync with the actual player object
         if (hostP2.name != null && !hostP2.name.isEmpty()) opponentName = hostP2.name;
         r_p1name  = hostP1.name != null ? hostP1.name : "";
         r_p2name  = hostP2.name != null ? hostP2.name : "";
@@ -566,11 +473,7 @@ public class MultiplayerGameActivity extends AppCompatActivity
         r_p2dashing    = hostP2.isDashing();
     }
 
-    /**
-     * Send the full state (including powerups + cosmetics + pending slot) to the client.
-     * The powerUps list is read on the game loop thread — same thread that
-     * modifies it — so no extra synchronisation needed here.
-     */
+
     private void sendStateToClient() {
         if (server == null) return;
         server.sendFullGameState(
@@ -584,14 +487,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
                 r_p2pending, r_p2pendingCol,
                 r_p1dashing, r_p2dashing);
     }
-
-    // ── Client state application ──────────────────────────────────────────────
-
-    /**
-     * Called on the GameClient-Read thread. Parses the STATE packet and updates
-     * all volatile render fields, including the powerup snapshot list.
-     * The client NEVER applies powerup effects itself.
-     */
     private void applyState(JSONObject j) {
         try {
             r_p1nx    = (float) j.optDouble("p1nx",   r_p1nx);
@@ -606,7 +501,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
             r_bgIndex = (bg >= 0 && bg < fullBg.length) ? bg : 0;
             r_timer   = (float) j.optDouble("timer",  r_timer);
 
-            // ── Parse powerup list ────────────────────────────────────────────
             JSONArray puArray = j.optJSONArray("powerups");
             List<PUSnapshot> newList = new ArrayList<>();
             if (puArray != null) {
@@ -621,12 +515,9 @@ public class MultiplayerGameActivity extends AppCompatActivity
                 }
                 Log.v(TAG, "Client received " + newList.size() + " powerups");
             }
-            // Atomic swap — render thread reads clientPowerUps via COWAL iterator
             clientPowerUps.clear();
             clientPowerUps.addAll(newList);
 
-            // Profile / cosmetic / pending / dashing fields (optional — may be empty
-            // when talking to an older host, in which case we keep current values).
             String s;
             s = j.optString("p1name",  ""); if (!s.isEmpty()) r_p1name  = s;
             s = j.optString("p2name",  ""); if (!s.isEmpty()) r_p2name  = s;
@@ -641,7 +532,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
             r_p1dashing    = j.optBoolean("p1dashing", false);
             r_p2dashing    = j.optBoolean("p2dashing", false);
 
-            // Pick up the opponent's (host's) name so HUD shows the right label.
             if (!r_p1name.isEmpty() && !r_p1name.equals(opponentName)) {
                 opponentName = r_p1name;
             }
@@ -651,7 +541,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         }
     }
 
-    // ── Touch / Joystick ──────────────────────────────────────────────────────
 
     private boolean canSendInput() {
         return !isFinishing() && client != null && !client.isStopped();
@@ -670,7 +559,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
                 float wx0 = screenToWorldX(ev.getX(pIdx));
                 float wy0 = screenToWorldY(ev.getY(pIdx));
 
-                // Action buttons take precedence over joystick spawn.
                 if (inButton(wx0, wy0, BTN_DASH_CX, BTN_DASH_CY)) {
                     requestLocalDash();
                     break;
@@ -711,13 +599,11 @@ public class MultiplayerGameActivity extends AppCompatActivity
     private float screenToWorldX(float sx) { return (sx - offsetX) / scale; }
     private float screenToWorldY(float sy) { return (sy - offsetY) / scale; }
 
-    /** Whether (wx, wy) lies within the action button at (cx, cy). */
     private static boolean inButton(float wx, float wy, float cx, float cy) {
         float dx = wx - cx, dy = wy - cy;
         return (dx * dx + dy * dy) <= BTN_RADIUS * BTN_RADIUS;
     }
 
-    /** Tries to dash the local player. Routes through the host if we're the client. */
     private void requestLocalDash() {
         if (isHost) {
             if (hostP1 != null && hostP1.tryDash()) {
@@ -725,7 +611,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
             }
         } else if (client != null && canSendInput()) {
             client.sendDash();
-            // Optimistic local cooldown so the HUD reflects the press immediately.
             long now = System.currentTimeMillis();
             if (now >= localDashCooldownEnd) {
                 localDashCooldownEnd = now + Player.DASH_COOLDOWN_MS;
@@ -733,7 +618,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         }
     }
 
-    /** Tries to activate the local player's held power-up. */
     private void requestLocalActivate() {
         if (isHost) {
             if (hostP1 != null) hostP1.activatePowerUp();
@@ -760,8 +644,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         if (!isHost && canSendInput()) client.sendInput(0, 0);
     }
 
-    // ── Rendering ─────────────────────────────────────────────────────────────
-
     private void render() {
         if (!surfaceReady || holder == null || canvasW == 0 || canvasH == 0) return;
         int bg = (r_bgIndex >= 0 && r_bgIndex < fullBg.length) ? r_bgIndex : 0;
@@ -783,25 +665,20 @@ public class MultiplayerGameActivity extends AppCompatActivity
             canvas.translate(offsetX, offsetY);
             canvas.scale(scale, scale);
 
-            // Background
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(fullBg[bg]);
             canvas.drawRect(0, 0, WORLD_W, WORLD_H, paint);
             paint.setColor(overlays[bg]);
             canvas.drawRect(0, 0, WORLD_W, WORLD_H, paint);
 
-            // ── PowerUps ─────────────────────────────────────────────────────
             if (isHost) {
-                // Host draws from the live list
                 for (PowerUp pu : powerUps) pu.draw(canvas, paint);
             } else {
-                // Client draws from the render-only snapshot
                 for (PUSnapshot pu : clientPowerUps) {
                     drawPowerUpSnapshot(canvas, pu);
                 }
             }
 
-            // Trails first so the player circle paints over them at its current position.
             String p1TrailAsset = !r_p1trail.isEmpty() ? r_p1trail : (isHost ? myTrail : opponentTrail);
             String p2TrailAsset = !r_p2trail.isEmpty() ? r_p2trail : (isHost ? opponentTrail : myTrail);
             updateTrail(p1TrailHistory, p1wx, p1wy);
@@ -809,7 +686,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
             drawTrail(canvas, p1TrailHistory, p1TrailAsset);
             drawTrail(canvas, p2TrailHistory, p2TrailAsset);
 
-            // Players — first their cosmetic aura ring, then the body.
             String p1Name = !r_p1name.isEmpty() ? r_p1name : (isHost ? myName : opponentName);
             String p2Name = !r_p2name.isEmpty() ? r_p2name : (isHost ? opponentName : myName);
             String p1CosAsset = !r_p1cos.isEmpty() ? r_p1cos : (isHost ? myCosmetic : opponentCosmetic);
@@ -836,9 +712,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * Draws a powerup snapshot on the client without creating a PowerUp object.
-     */
     private void drawPowerUpSnapshot(Canvas canvas, PUSnapshot pu) {
         float pulse = (float) Math.sin(System.currentTimeMillis() * 0.008) * 8;
         paint.setStyle(Paint.Style.FILL);
@@ -855,7 +728,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
     private void drawPlayer(Canvas c, float x, float y, float r,
                             int color, String name, boolean isMe,
                             int cosmeticColor, boolean dashing) {
-        // Equipped cosmetic aura (outermost ring so it's clearly visible).
         if (cosmeticColor != 0) {
             int cr = Color.red(cosmeticColor);
             int cg = Color.green(cosmeticColor);
@@ -895,7 +767,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         c.drawText(label, x - nw / 2,     y - r - 14, textPaint);
     }
 
-    // ── Trail rendering (kept on the render side; not part of game state) ──────────
     private final ArrayDeque<float[]> p1TrailHistory = new ArrayDeque<>();
     private final ArrayDeque<float[]> p2TrailHistory = new ArrayDeque<>();
     private long lastP1TrailSample = 0, lastP2TrailSample = 0;
@@ -972,12 +843,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         c.drawCircle(joyX - JOY_KNOB * 0.25f, joyY - JOY_KNOB * 0.25f, JOY_KNOB * 0.4f, paint);
     }
 
-    // ── Action buttons (dash + activate) ────────────────────────────────────────
-
-    /**
-     * Returns the pending power-up info for the LOCAL player (the one this
-     * device controls). Index 0 = type string, index 1 = color (int) in element[0].
-     */
     private String localPendingType()  { return isHost ? r_p1pending    : r_p2pending; }
     private int    localPendingColor() { return isHost ? r_p1pendingCol : r_p2pendingCol; }
 
@@ -1039,7 +904,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         return b.toString().trim();
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────────
 
     private void navigateToGameOver(String winner, String loser, int ws, int ls) {
         if (!gameOverNavigated.compareAndSet(false, true)) return;
@@ -1056,7 +920,6 @@ public class MultiplayerGameActivity extends AppCompatActivity
         finish();
     }
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     @Override
     protected void onPause() {

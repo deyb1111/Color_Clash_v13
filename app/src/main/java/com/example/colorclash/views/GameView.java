@@ -21,43 +21,30 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
-/**
- * GameView — redesigned layout matching user spec:
- *
- * LEFT PANEL  (P1):  Joystick(top) → Name/Score/HP(mid) → Empty/Dash(bottom)
- * RIGHT PANEL (P2):  Dash/Empty(top) → HP/Score/Name(mid) → Joystick(bottom)
- * CENTER TOP:        Timer + attack label
- * CENTER BOTTOM:     EXIT button
- */
+
 public class GameView extends SurfaceView implements SurfaceHolder.Callback, Runnable {
 
-    // ── Panel constants ───────────────────────────────────────────────────────
     private static final float PANEL_W_RATIO = 0.14f;
     private static final int   P1_COLOR      = 0xFFFFCC00; // gold
     private static final int   P2_COLOR      = 0xFF3399FF; // blue
     private static final float FRAME_INSET   = 16f;
 
-    // ── Threading ─────────────────────────────────────────────────────────────
     private Thread        gameThread;
     private SurfaceHolder holder;
     private volatile boolean running = false;
     private long lastTime = 0;
 
-    // ── Game objects ──────────────────────────────────────────────────────────
     public Player       player1, player2;
     public List<PowerUp> powerUps = new ArrayList<>();
     private Random       random   = new Random();
 
-    // ── Paint ─────────────────────────────────────────────────────────────────
     private final Paint paint     = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    // ── Asset bitmaps ─────────────────────────────────────────────────────────
     private Bitmap bmpRed, bmpGreen, bmpBlue, bmpYellow;
     private Bitmap bmpShield, bmpSpeed, bmpLife, bmpDash;
     private int    bmpSize = 0;   // set in surfaceCreated
 
-    // ── Background cycling ────────────────────────────────────────────────────
     private long  nextBgChangeTime    = 0;
     private int   currentBgIndex      = 0;
     private float timerCountdown      = 5f;
@@ -68,7 +55,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             Color.argb(110, 60, 0, 0), Color.argb(110, 0, 50, 0),
             Color.argb(110, 0, 0, 60), Color.argb(110, 60, 55, 0) };
 
-    // ── Joystick ──────────────────────────────────────────────────────────────
+    //joystick
     private static final float JOY_R  = 115f;
     private static final float JOY_KNOB = 42f;
     private float p1JoyX, p1JoyY, p1CX, p1CY;
@@ -76,21 +63,17 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
     private boolean p1Touch = false, p2Touch = false;
     private int     p1Ptr   = -1,    p2Ptr   = -1;
 
-    // ── Screen / panel ────────────────────────────────────────────────────────
+    // Screen
     private int   screenWidth = 1920, screenHeight = 1080;
     private float panelW = 0f;
     private float btnR   = 60f;
 
-    // ── Button positions (computed in surfaceCreated) ─────────────────────────
-    // P1 (left panel): EMPTY lower-mid, DASH bottom
+    //button pos
     private float p1EmptyX, p1EmptyY, p1DashX, p1DashY;
-    // P2 (right panel): DASH top, EMPTY upper
     private float p2DashX, p2DashY, p2EmptyX, p2EmptyY;
-    // EXIT button (center bottom)
     private float exitCX, exitCY, exitW, exitH;
     private boolean exitPressed = false;
 
-    // ── Player setup ─────────────────────────────────────────────────────────
     private String pendingP1Name = "P1", pendingP2Name = "P2";
     private int    pendingP1Color = Color.RED, pendingP2Color = Color.BLUE;
     private boolean gameOver = false;
@@ -98,14 +81,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
     private GameListener  listener;
     private DatabaseManager dbManager;
 
-    // ── Interface ─────────────────────────────────────────────────────────────
     public interface GameListener {
         void onGameOver(Player winner, Player loser);
         void onBgColorChanged(int newColor);
         void onExit();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
 
     private Context context;
 
@@ -154,23 +135,18 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         player1.radius = 52f; player2.radius = 52f;
         applyEquippedCosmetics(player1); applyEquippedCosmetics(player2);
 
-        // ── P1 joystick TOP of left panel ─────────────────────────────────────
         p1CX = panelW / 2f;            p1CY = screenHeight * 0.16f;
         p1JoyX = p1CX;                 p1JoyY = p1CY;
 
-        // ── P2 joystick BOTTOM of right panel ─────────────────────────────────
         p2CX = screenWidth - panelW / 2f; p2CY = screenHeight * 0.84f;
         p2JoyX = p2CX;                    p2JoyY = p2CY;
 
-        // ── P1 buttons: EMPTY upper-bottom, DASH lower-bottom ─────────────────
         p1EmptyX = panelW / 2f; p1EmptyY = screenHeight * 0.70f;
         p1DashX  = panelW / 2f; p1DashY  = screenHeight * 0.87f;
 
-        // ── P2 buttons: DASH top, EMPTY upper ─────────────────────────────────
         p2DashX  = screenWidth - panelW / 2f; p2DashY  = screenHeight * 0.13f;
         p2EmptyX = screenWidth - panelW / 2f; p2EmptyY = screenHeight * 0.30f;
 
-        // ── EXIT button center bottom ─────────────────────────────────────────
         exitW  = screenHeight * 0.09f; exitH = screenHeight * 0.09f;
         exitCX = screenWidth / 2f;    exitCY = screenHeight * 0.935f;
 
@@ -210,8 +186,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             try { Thread.sleep(16); } catch (InterruptedException e) { e.printStackTrace(); }
         }
     }
-
-    // ── Update ────────────────────────────────────────────────────────────────
 
     private void update(long dt) {
         if (gameOver || player1 == null || player2 == null) return;
@@ -282,7 +256,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         if (d>0){def.x+=(dx/d)*150; def.y+=(dy/d)*150;} clamp(def);
     }
 
-    // ── Draw ──────────────────────────────────────────────────────────────────
 
     private void draw() {
         if (player1==null||player2==null) return;
@@ -295,7 +268,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
                 Bitmap puBmp = powerupBitmapFor(p.type);
                 if (puBmp != null) {
                     float pr = p.radius * 1.8f + (float)Math.sin(System.currentTimeMillis()*0.008)*6f;
-                    paint.setAlpha(255); // FIX: always full opacity for powerups
+                    paint.setAlpha(255);
                     canvas.save();
                     Path puClip = new Path();
                     puClip.addCircle(p.x, p.y, pr, Path.Direction.CW);
@@ -303,7 +276,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
                     canvas.drawBitmap(puBmp, null,
                         new android.graphics.RectF(p.x-pr, p.y-pr, p.x+pr, p.y+pr), paint);
                     canvas.restore();
-                    paint.setAlpha(255); // reset after
+                    paint.setAlpha(255);
                 } else {
                     paint.setAlpha(255);
                     p.draw(canvas, paint);
@@ -312,7 +285,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             drawTrail(canvas, player1); drawTrail(canvas, player2);
             drawPlayer(canvas, player1); drawPlayer(canvas, player2);
             drawCenterHUD(canvas);
-            // Side panels (drawn on top)
             drawLeftPanel(canvas);
             drawRightPanel(canvas);
             drawExitButton(canvas);
@@ -350,7 +322,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
     }
 
     private void drawCenterHUD(Canvas canvas) {
-        // No background box — plain white text with shadow for readability
         float cx  = screenWidth / 2f;
         float topY = screenHeight * 0.01f;
 
@@ -362,7 +333,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         canvas.drawText(t, cx - textPaint.measureText(t)/2,
                 topY + screenHeight * 0.065f, textPaint);
 
-        // Attack label (smaller, below timer)
         textPaint.setTextSize(screenHeight * 0.030f);
         textPaint.setColor(Color.WHITE);
         textPaint.setShadowLayer(4f, 1f, 1f, Color.argb(180, 0, 0, 0));
@@ -373,55 +343,46 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         textPaint.clearShadowLayer();
     }
 
-    // ── LEFT PANEL: Joystick(top) → Name/Score/HP(mid) → Empty/Dash(bottom) ──
 
     private void drawLeftPanel(Canvas canvas) {
         drawPanelBg(canvas, true);
         float cx = panelW/2f;
         int pc1 = p1PanelColor();
 
-        // 1. JOYSTICK (top)
         drawJoystick(canvas, p1Touch, p1CX, p1CY, p1JoyX, p1JoyY, pc1);
 
-        // 2. NAME + SCORE + HP BAR (user-adjusted rotation)
         canvas.save();
         canvas.rotate(90f, cx, screenHeight*0.47f);
         drawInfoBlock(canvas, player1, cx, screenHeight*0.46f, true, pc1);
         canvas.restore();
 
-        // 3. EMPTY button — rotated 90° for P1
         canvas.save();
         canvas.rotate(90f, p1EmptyX, p1EmptyY);
         drawActivateBtn(canvas, player1, p1EmptyX, p1EmptyY);
         canvas.restore();
 
-        // 4. DASH button — rotated 90° for P1
         canvas.save();
         canvas.rotate(90f, p1DashX, p1DashY);
         drawDashBtn(canvas, player1, p1DashX, p1DashY);
         canvas.restore();
     }
 
-    // ── RIGHT PANEL: Dash/Empty(top) → HP/Score/Name(mid) → Joystick(bottom) ─
 
     private void drawRightPanel(Canvas canvas) {
         drawPanelBg(canvas, false);
         float cx = screenWidth - panelW/2f;
         int pc2 = p2PanelColor();
 
-        // 1. DASH button (top) — rotated -90° for P2
         canvas.save();
         canvas.rotate(-90f, p2DashX, p2DashY);
         drawDashBtn(canvas, player2, p2DashX, p2DashY);
         canvas.restore();
 
-        // 2. EMPTY button — rotated -90° for P2
         canvas.save();
         canvas.rotate(-90f, p2EmptyX, p2EmptyY);
         drawActivateBtn(canvas, player2, p2EmptyX, p2EmptyY);
         canvas.restore();
 
-        // 3. NAME + SCORE + HP BAR (user-adjusted rotation)
         canvas.save();
         canvas.rotate(-90f, cx, screenHeight*0.53f);
         drawInfoBlock(canvas, player2, cx, screenHeight*0.52f, false, pc2);
@@ -431,7 +392,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         drawJoystick(canvas, p2Touch, p2CX, p2CY, p2JoyX, p2JoyY, pc2);
     }
 
-    /** Panel accent color = player's chosen ball color. */
     private int p1PanelColor() { return player1!=null ? player1.color : P1_COLOR; }
     private int p2PanelColor() { return player2!=null ? player2.color : P2_COLOR; }
 
@@ -444,7 +404,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         paint.setColor(Color.argb(240, 6, 8, 18));
         canvas.drawRect(pl, 0, pr, screenHeight, paint);
 
-        // Edge glow
         float ex = isLeft ? pr : pl;
         paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(18);
         paint.setColor(Color.argb(50,Color.red(pc),Color.green(pc),Color.blue(pc)));
@@ -453,11 +412,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         canvas.drawLine(ex,0,ex,screenHeight,paint);
     }
 
-    /**
-     * Draws name, score, and HP bar for a player.
-     * centreY = vertical centre of the block.
-     * isLeft: true = P1 info block (name on left side), false = P2 (right side).
-     */
     private void drawInfoBlock(Canvas canvas, Player p, float cx, float centreY,
                                 boolean isLeft, int pColor) {
         float blockW = panelW * 0.82f;
@@ -465,7 +419,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         float bx = cx - blockW/2f;
         float by = centreY - blockH/2f;
 
-        // Background rounded rect
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.argb(140, 16, 18, 32));
         canvas.drawRoundRect(new RectF(bx, by, bx+blockW, by+blockH), 12, 12, paint);
@@ -473,7 +426,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         paint.setColor(Color.argb(130,Color.red(pColor),Color.green(pColor),Color.blue(pColor)));
         canvas.drawRoundRect(new RectF(bx, by, bx+blockW, by+blockH), 12, 12, paint);
 
-        // HP bar (vertical, on the inner edge side)
+        // HP bar
         float hpBarW = blockW * 0.15f;
         float hpBarH = blockH * 0.80f;
         float hpBx = isLeft ? (bx + blockW - hpBarW - blockW*0.04f) : (bx + blockW*0.04f);
@@ -505,14 +458,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         canvas.drawText(sc, textCX - textPaint.measureText(sc)/2, by+blockH*0.85f, textPaint);
     }
 
-    /** Segmented vertical HP bar (5 segments = 5 lives). */
     private void drawHpBar(Canvas canvas, Player p, float x, float y,
                            float w, float h, int pColor) {
         int maxLives = 5;
         float segH = (h - (maxLives-1)*3f) / maxLives;
 
         for (int i = 0; i < maxLives; i++) {
-            // Segments go from bottom to top (i=0 is bottom)
             float segY = y + h - (i+1)*(segH+3f) + 3f;
             boolean filled = i < p.lives;
             paint.setStyle(Paint.Style.FILL);
@@ -537,20 +488,15 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         paint.setColor(Color.argb(active?70:25, pr,pg,pb));
         canvas.drawCircle(cx,cy,JOY_R*0.5f,paint);
 
-        // Arrow marks
         float ad=JOY_R*0.73f, al=JOY_R*0.16f;
         paint.setStrokeWidth(3);
         paint.setColor(Color.argb(active?160:65, pr,pg,pb));
-        // Up
         canvas.drawLine(cx,cy-ad, cx-al,cy-ad+al*1.1f,paint);
         canvas.drawLine(cx,cy-ad, cx+al,cy-ad+al*1.1f,paint);
-        // Down
         canvas.drawLine(cx,cy+ad, cx-al,cy+ad-al*1.1f,paint);
         canvas.drawLine(cx,cy+ad, cx+al,cy+ad-al*1.1f,paint);
-        // Left
         canvas.drawLine(cx-ad,cy, cx-ad+al*1.1f,cy-al,paint);
         canvas.drawLine(cx-ad,cy, cx-ad+al*1.1f,cy+al,paint);
-        // Right
         canvas.drawLine(cx+ad,cy, cx+ad-al*1.1f,cy-al,paint);
         canvas.drawLine(cx+ad,cy, cx+ad-al*1.1f,cy+al,paint);
 
@@ -570,7 +516,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         float r  = btnR * 1.1f;
         if (bmpDash != null) {
             paint.setAlpha(cd > 0 ? 90 : 255);
-            // Clip to circle so no square edges show
             canvas.save();
             Path dclip = new Path();
             dclip.addCircle(cx, cy, r, Path.Direction.CW);
@@ -586,7 +531,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             textPaint.setTextSize(r*0.40f); textPaint.setColor(Color.WHITE);
             String lbl="DASH"; canvas.drawText(lbl,cx-textPaint.measureText(lbl)/2,cy+r*0.15f,textPaint);
         }
-        // Cooldown overlay arc on top of image
         if (cd > 0) {
             paint.setStyle(Paint.Style.FILL); paint.setColor(Color.argb(140,0,0,0));
             canvas.drawArc(new RectF(cx-r,cy-r,cx+r,cy+r),-90f,360f*cd,true,paint);
@@ -650,7 +594,7 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         canvas.drawText(icon,exitCX-iw/2,exitCY+exitH*0.20f,textPaint);
     }
 
-    // ── Player ball ───────────────────────────────────────────────────────────
+    // player ball
 
     private void drawTrail(Canvas canvas, Player player) {
         if (player==null||player.equippedTrailAsset==null||player.equippedTrailAsset.isEmpty()) return;
@@ -667,11 +611,10 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             paint.setColor(Color.argb(alpha,Color.red(col),Color.green(col),Color.blue(col)));
             canvas.drawCircle(pt[0],pt[1],rad,paint); i++;
         }
-        paint.setAlpha(255); // FIX: reset after trail so next draw is not faded
+        paint.setAlpha(255);
     }
 
     private void drawPlayer(Canvas canvas, Player p) {
-        // Effect rings
         if (p.equippedCosmeticColor!=0) {
             int c=p.equippedCosmeticColor;
             paint.setStyle(Paint.Style.FILL);
@@ -701,9 +644,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             canvas.drawCircle(p.x,p.y,p.radius+12,paint);
         }
 
-        // FIX: Reset alpha to 255 before drawing ball bitmap.
-        // Effect rings above use paint.setColor(Color.argb(50,...)) which
-        // leaves paint alpha=50 — causing the ball to draw at 20% opacity.
         paint.setAlpha(255);
         Bitmap bmp = ballBitmapFor(p.color);
         if (bmp != null) {
@@ -719,9 +659,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             paint.setStyle(Paint.Style.FILL); paint.setColor(p.color);
             canvas.drawCircle(p.x,p.y,p.radius,paint);
         }
-        paint.setAlpha(255); // ensure reset after ball draw too
+        paint.setAlpha(255);
 
-        // Name label above ball
         textPaint.setTextSize(34f); textPaint.setColor(Color.argb(100,0,0,0));
         float nw=textPaint.measureText(p.name);
         canvas.drawText(p.name,p.x-nw/2+2,p.y-p.radius-14,textPaint);
@@ -736,8 +675,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
         if (color == Color.YELLOW) return bmpYellow;
         return null;
     }
-
-    // ── Touch ─────────────────────────────────────────────────────────────────
 
     private boolean inBtn(float ex, float ey, float cx, float cy) {
         float dx=ex-cx,dy=ey-cy; return dx*dx+dy*dy<=btnR*btnR;
@@ -758,10 +695,8 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
                 if (inExit(ex,ey)) { exitPressed=true; post(()->{if(listener!=null)listener.onExit();}); break; }
-                // P1 buttons (left panel)
                 if (inBtn(ex,ey,p1DashX,p1DashY))  { player1.tryDash(); break; }
                 if (inBtn(ex,ey,p1EmptyX,p1EmptyY)) { player1.activatePowerUp(); break; }
-                // P2 buttons (right panel)
                 if (inBtn(ex,ey,p2DashX,p2DashY))  { player2.tryDash(); break; }
                 if (inBtn(ex,ey,p2EmptyX,p2EmptyY)) { player2.activatePowerUp(); break; }
 
@@ -786,7 +721,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_CANCEL:
                 exitPressed=false;
-                // Release ALL pointers on CANCEL to prevent stuck knob
                 if (action == MotionEvent.ACTION_CANCEL) {
                     p1Touch=false; p1Ptr=-1; player1.vx=0; player1.vy=0; p1JoyX=p1CX; p1JoyY=p1CY;
                     p2Touch=false; p2Ptr=-1; player2.vx=0; player2.vy=0; p2JoyX=p2CX; p2JoyY=p2CY;
@@ -794,7 +728,6 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback, Run
                     if (pId==p1Ptr){p1Touch=false;p1Ptr=-1;player1.vx=0;player1.vy=0;p1JoyX=p1CX;p1JoyY=p1CY;}
                     if (pId==p2Ptr){p2Touch=false;p2Ptr=-1;player2.vx=0;player2.vy=0;p2JoyX=p2CX;p2JoyY=p2CY;}
                 }
-                // Extra: if no fingers on screen, reset everything
                 if (ev.getPointerCount() == 1 && action == MotionEvent.ACTION_POINTER_UP) {
                     p1Touch=false; p1Ptr=-1; player1.vx=0; player1.vy=0; p1JoyX=p1CX; p1JoyY=p1CY;
                     p2Touch=false; p2Ptr=-1; player2.vx=0; player2.vy=0; p2JoyX=p2CX; p2JoyY=p2CY;

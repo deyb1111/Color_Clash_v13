@@ -13,18 +13,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.example.colorclash.models.PowerUp;
 
-/**
- * GameServer — runs on the HOST device.
- *
- * ROOT DISCONNECT FIX:
- * Dedicated write thread owns the PrintWriter. Game loop enqueues into a
- * bounded BlockingQueue via offer() — never blocks, never causes false
- * checkError() disconnects.
- *
- * POWERUP FIX:
- * sendGameState() now accepts the live powerup list and serialises each
- * powerup's x, y, type, and color into a JSON array in the STATE packet.
- */
 public class GameServer {
 
     public static final int PORT = 9001;
@@ -36,21 +24,11 @@ public class GameServer {
         void onClientDisconnected();
         void onError(String message);
 
-        /**
-         * Fires when the joining player asks to dash. Default no-op for
-         * backward compat with older listeners that don't implement it.
-         */
         default void onDashRequest() {}
 
-        /**
-         * Fires when the joining player asks to activate their held power-up.
-         */
+
         default void onActivateRequest() {}
 
-        /**
-         * Fires once on connect when the client sends its profile so the host
-         * can render the joiner's equipped cosmetic / trail.
-         */
         default void onProfileReceived(String name, String cosmeticAsset, String trailAsset) {}
     }
 
@@ -108,7 +86,6 @@ public class GameServer {
         acceptThread.start();
     }
 
-    // ── Write thread ─────────────────────────────────────────────────────────
 
     private void startWriteThread(Socket sock) {
         writeThread = new Thread(() -> {
@@ -151,7 +128,6 @@ public class GameServer {
         writeThread.start();
     }
 
-    // ── Enqueue helpers ───────────────────────────────────────────────────────
 
     public void sendState(JSONObject state) {
         if (stopped.get() || !running) return;
@@ -160,15 +136,6 @@ public class GameServer {
             Log.v(TAG, "Write queue full — dropping STATE packet");
         }
     }
-
-    /**
-     * Serialises the full game state including the live powerup list.
-     *
-     * Powerup array format (each element):
-     *   { "x": float, "y": float, "type": String, "color": int }
-     *
-     * @param powerUps  The host's live powerup list — may be null or empty.
-     */
     public void sendGameState(float p1nx, float p1ny, float p2nx, float p2ny,
                               int p1lives, int p2lives, int p1score, int p2score,
                               int bgIndex, float timer,
@@ -181,12 +148,6 @@ public class GameServer {
                 false, false);
     }
 
-    /**
-     * Extended STATE packet that also carries:
-     *  - both players' names and equipped cosmetic / trail (so the client can render them)
-     *  - each player's currently-held (pending) power-up + slot color
-     *  - whether each player is currently dashing
-     */
     public void sendFullGameState(float p1nx, float p1ny, float p2nx, float p2ny,
                                   int p1lives, int p2lives, int p1score, int p2score,
                                   int bgIndex, float timer,
@@ -206,7 +167,6 @@ public class GameServer {
             j.put("p1score", p1score); j.put("p2score", p2score);
             j.put("bgIndex", bgIndex); j.put("timer",   timer);
 
-            // ── Powerup list ──────────────────────────────────────────────────
             JSONArray puArray = new JSONArray();
             if (powerUps != null) {
                 for (PowerUp pu : powerUps) {
@@ -219,8 +179,6 @@ public class GameServer {
                 }
             }
             j.put("powerups", puArray);
-
-            // ── Profile / cosmetics / pending / dash ──────────────────────────
             j.put("p1name",         p1name        != null ? p1name        : "");
             j.put("p2name",         p2name        != null ? p2name        : "");
             j.put("p1cos",          p1cos         != null ? p1cos         : "");
@@ -257,8 +215,6 @@ public class GameServer {
             Log.e(TAG, "sendGameOver JSON error", e);
         }
     }
-
-    // ── Read thread ───────────────────────────────────────────────────────────
 
     private void startReadLoop() {
         readThread = new Thread(() -> {
@@ -319,7 +275,6 @@ public class GameServer {
         }
     }
 
-    // ── Stop ─────────────────────────────────────────────────────────────────
 
     public void stop() {
         if (!stopped.compareAndSet(false, true)) return;

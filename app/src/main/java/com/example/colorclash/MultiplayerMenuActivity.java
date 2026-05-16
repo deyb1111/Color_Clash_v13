@@ -17,13 +17,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import com.example.colorclash.ProfileManager;
 
-/**
- * MultiplayerMenuActivity
- *
- * Entry point for multiplayer. Player enters their name, then either:
- *   HOST  → HostActivity (creates Wi-Fi Direct group, acts as server)
- *   JOIN  → JoinActivity  (discovers peers, connects to host)
- */
 public class MultiplayerMenuActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST = 100;
@@ -45,7 +38,6 @@ public class MultiplayerMenuActivity extends AppCompatActivity {
         Button btnHost  = findViewById(R.id.btn_host);
         Button btnJoin  = findViewById(R.id.btn_join);
 
-        // Pre-fill with saved primary player name (Problem 4 fix)
         String savedName = new ProfileManager(this).getPrimaryName();
         if (savedName != null && !savedName.isEmpty() && !savedName.equals("Guest")) {
             playerNameField.setText(savedName);
@@ -69,7 +61,6 @@ public class MultiplayerMenuActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // ── Runtime permissions (Wi-Fi Direct needs location on API 23+) ─────────
     private void requestRequiredPermissions() {
         java.util.List<String> needed = new java.util.ArrayList<>();
 

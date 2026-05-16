@@ -7,12 +7,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.colorclash.database.DatabaseManager;
 
-/**
- * MultiplayerGameOverActivity
- *
- * Displayed on BOTH devices after a multiplayer match ends.
- * Saves the match result and gold conversion to the local SQLite database.
- */
+
 public class MultiplayerGameOverActivity extends AppCompatActivity {
 
     private static final int GOLD_DIVISOR = 10;
@@ -31,12 +26,10 @@ public class MultiplayerGameOverActivity extends AppCompatActivity {
         int winnerGold = winnerScore / GOLD_DIVISOR;
         int loserGold  = loserScore  / GOLD_DIVISOR;
 
-        // Determine what gold "I" earned
         boolean iWon    = myName != null && myName.equals(winner);
         int     myGold  = iWon ? winnerGold : loserGold;
         int     myScore = iWon ? winnerScore : loserScore;
 
-        // ── Save to DB (each device saves its own side) ──────────────────────
         try {
             DatabaseManager db = DatabaseManager.getInstance(this);
             db.ensurePlayer(myName);
@@ -44,7 +37,6 @@ public class MultiplayerGameOverActivity extends AppCompatActivity {
             db.addPoints(myName, myScore);
         } catch (Exception e) { e.printStackTrace(); }
 
-        // ── UI ───────────────────────────────────────────────────────────────
         TextView resultText = findViewById(R.id.mp_result_text);
         TextView scoreText  = findViewById(R.id.mp_score_text);
         TextView goldText   = findViewById(R.id.mp_gold_text);
