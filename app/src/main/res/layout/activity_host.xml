@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
     Host screen — adaptive landscape layout that mirrors
-    activity_offline_setup.xml.
+    activity_offline_setup.xml (two horizontal cards inside a
+    weighted vertical column, just like player1 | VS | player2).
 
     Weight distribution (vertical):
-      logo spacer    : 18
-      subtitle       : 6
-      status banner  : 8
-      connection card: 36   (IP info + hint + progress)
-      back button    : 10
-      bottom pad     : 22
-    Total            : 100
+      logo spacer  : 28
+      subtitle     : 6
+      status banner: 7    (full width, multi-line ellipsised)
+      cards row    : 36   (IP card | divider | status card)
+      back button  : 12
+      bottom pad   : 11
+    Total          : 100
+
+    host_ip_text now uses wrap_content + minHeight so it always
+    expands to its natural height when Java flips visibility to
+    VISIBLE (the previous 0dp + weight=3 approach got squashed to
+    zero height when sibling wrap_content children filled the card).
 -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -37,7 +43,7 @@
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="18" />
+            android:layout_weight="28" />
 
         <!-- Subtitle -->
         <TextView
@@ -54,12 +60,12 @@
             android:shadowDy="0"
             android:shadowRadius="8" />
 
-        <!-- Status banner: kept full-width so long status strings don't get cut off -->
+        <!-- Status banner: full-width so long status strings don't get cut off -->
         <TextView
             android:id="@+id/host_status"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="8"
+            android:layout_weight="7"
             android:text="Status: WAITING_FOR_PLAYER"
             android:textSize="13sp"
             android:textStyle="bold"
@@ -76,86 +82,132 @@
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp" />
 
-        <!-- Connection info card -->
+        <!-- Cards row: IP info | divider | spinner -->
         <LinearLayout
-            android:id="@+id/host_info_card"
+            android:id="@+id/host_cards_row"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="36"
-            android:orientation="vertical"
-            android:background="@drawable/card_bg_default"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="30dp">
 
-            <TextView
-                android:id="@+id/host_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📡  CONNECTION INFO"
-                android:textStyle="bold"
-                android:textColor="#CCCCCC"
-                android:textSize="13sp" />
+            <!-- Left: IP connection info -->
+            <LinearLayout
+                android:id="@+id/host_info_card"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:background="@drawable/card_bg_default"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SHARE WITH YOUR OPPONENT"
-                android:textColor="#AAAAAA"
-                android:textSize="8sp"
-                android:letterSpacing="0.08"
-                android:layout_marginTop="3dp" />
+                <TextView
+                    android:id="@+id/host_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📡  CONNECTION INFO"
+                    android:textStyle="bold"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp" />
 
-            <!-- IP block (filled at runtime; uses the same panel style as the offline EditText) -->
-            <TextView
-                android:id="@+id/host_ip_text"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="3"
-                android:text=""
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="#FFEE44"
-                android:fontFamily="monospace"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SHARE WITH YOUR OPPONENT"
+                    android:textColor="#AAAAAA"
+                    android:textSize="8sp"
+                    android:letterSpacing="0.08"
+                    android:layout_marginTop="3dp" />
+
+                <!-- IP block. wrap_content + minHeight guarantees the view
+                     expands to fit its text the moment Java sets it
+                     (it doesn't depend on any leftover space). -->
+                <TextView
+                    android:id="@+id/host_ip_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="44dp"
+                    android:text=""
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#FFEE44"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:background="@drawable/edit_text_bg_default"
+                    android:padding="8dp"
+                    android:shadowColor="#AAFFAA00"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="6"
+                    android:layout_marginTop="6dp" />
+
+                <TextView
+                    android:id="@+id/host_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Share with your opponent — they enter it on Join."
+                    android:textSize="11sp"
+                    android:textColor="#9E9EBD"
+                    android:gravity="center"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:layout_marginTop="6dp" />
+            </LinearLayout>
+
+            <!-- Right: spinner + waiting copy -->
+            <LinearLayout
+                android:id="@+id/host_status_card"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
                 android:gravity="center"
-                android:visibility="gone"
-                android:background="@drawable/edit_text_bg_default"
-                android:padding="10dp"
-                android:shadowColor="#AAFFAA00"
-                android:shadowDx="0"
-                android:shadowDy="0"
-                android:shadowRadius="6"
-                android:layout_marginTop="6dp" />
+                android:background="@drawable/card_bg_default"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:layout_marginStart="10dp">
 
-            <!-- Hint line -->
-            <TextView
-                android:id="@+id/host_hint"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Share the IP address with your opponent.\nThey enter it on the Join screen."
-                android:textSize="11sp"
-                android:textColor="#9E9EBD"
-                android:gravity="center"
-                android:layout_marginTop="6dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🛰  WAITING"
+                    android:textStyle="bold"
+                    android:textColor="#CCCCCC"
+                    android:textSize="13sp" />
 
-            <!-- Progress spinner: small + centered -->
-            <ProgressBar
-                android:id="@+id/host_progress"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="6dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="JOINER WILL APPEAR"
+                    android:textColor="#AAAAAA"
+                    android:textSize="8sp"
+                    android:letterSpacing="0.08"
+                    android:layout_marginTop="3dp" />
+
+                <ProgressBar
+                    android:id="@+id/host_progress"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="10dp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Back button -->
+        <!-- Back button (indigo) — width matches multiplayer_menu buttons -->
         <Button
             android:id="@+id/btn_back_host"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="10"
+            android:layout_weight="12"
             android:text="🏠  Back to Menu"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -163,15 +215,15 @@
             android:textColor="#FFFFFF"
             android:backgroundTint="#5C6BC0"
             app:cornerRadius="14dp"
-            android:layout_marginStart="120dp"
-            android:layout_marginEnd="120dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginEnd="80dp"
             android:layout_marginTop="6dp" />
 
         <!-- Bottom padding -->
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="22" />
+            android:layout_weight="11" />
 
     </LinearLayout>
 </FrameLayout>
