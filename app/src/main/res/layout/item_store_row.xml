@@ -1,83 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    Store item row — visually matches the player cards used in
+    activity_offline_setup.xml (card_bg_default, white stroke,
+    rounded corners, captions in uppercase with letter-spacing).
+
+    Each row carries a dedicated effect-preview slot on the left
+    so players can see what a cosmetic does before buying or
+    equipping it:
+
+        Preview slot
+        ────────────
+        - A faint horizontal "trail" gradient strip
+          (shows what a Motion Trail looks like behind a ball)
+        - A radial "aura" halo
+          (shows what a Glow Aura looks like around a ball)
+        - A ball icon stacked on top
+          (stands in for the player's chosen ball)
+
+    A small colour chip in the right-hand column previews the
+    item's asset_reference colour (defaults to the same red the
+    legacy layout used; future code may tint it per-item).
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:background="#1A1A30"
-    android:padding="14dp"
+    android:baselineAligned="false"
+    android:background="@drawable/card_bg_default"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:layout_marginVertical="5dp"
-    android:layout_marginHorizontal="4dp">
+    android:layout_marginHorizontal="2dp">
 
-    <!-- Item colour dot (asset colour) -->
-    <View
-        android:id="@+id/store_item_dot"
-        android:layout_width="18dp"
-        android:layout_height="18dp"
-        android:background="#FF4444"
-        android:layout_marginEnd="12dp"/>
+    <!-- Effect preview slot: ball + aura halo + trail streak -->
+    <FrameLayout
+        android:layout_width="80dp"
+        android:layout_height="60dp"
+        android:background="@drawable/store_preview_frame"
+        android:padding="4dp">
 
-    <!-- Name + type -->
+        <!-- Trail streak (centered vertically, fades into the ball) -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/store_trail_preview" />
+
+        <!-- Aura halo behind the ball -->
+        <View
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="end|center_vertical"
+            android:background="@drawable/store_aura_preview" />
+
+        <!-- Player ball stand-in -->
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ball_blue"
+            android:scaleType="fitCenter"
+            android:contentDescription="Ball preview" />
+    </FrameLayout>
+
+    <!-- Name + type column -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginStart="10dp">
 
         <TextView
             android:id="@+id/store_item_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Item Name"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"/>
+            android:textColor="#FFFFFF" />
 
-        <TextView
-            android:id="@+id/store_item_type"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="COSMETIC"
-            android:textSize="11sp"
-            android:textColor="#FFFFFF"
-            android:background="#5C6BC0"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
-            android:layout_marginTop="4dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+
+            <!-- Type pill. Java overrides the background colour at bind time
+                 (cosmetic = #5C6BC0, trail = #00897B), so the runtime fill is
+                 a flat colour; the padding + letter-spacing give it the look
+                 of a small badge regardless. -->
+            <TextView
+                android:id="@+id/store_item_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="COSMETIC"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:letterSpacing="0.12"
+                android:background="#5C6BC0"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp" />
+
+            <!-- Asset colour chip — keeps the legacy "store_item_dot" id so the
+                 existing adapter doesn't break; future code can tint it per-item. -->
+            <View
+                android:id="@+id/store_item_dot"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:background="@drawable/store_chip_bg"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Price -->
+    <!-- Price column -->
     <TextView
         android:id="@+id/store_item_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="50 🪙"
         android:textSize="15sp"
+        android:textStyle="bold"
         android:textColor="#FFDD22"
-        android:layout_marginEnd="12dp"/>
+        android:shadowColor="#AAFFAA00"
+        android:shadowDx="0"
+        android:shadowDy="0"
+        android:shadowRadius="6"
+        android:minWidth="56dp"
+        android:gravity="end"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp" />
 
-    <!-- Buy button -->
+    <!-- Buy button (visible when item is not yet owned) -->
     <Button
         android:id="@+id/store_buy_btn"
         android:layout_width="wrap_content"
-        android:layout_height="36dp"
+        android:layout_height="38dp"
         android:text="Buy"
         android:textAllCaps="false"
+        android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:textSize="13sp"
+        android:minWidth="86dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
         android:backgroundTint="#7B1FA2"
-        android:visibility="visible"/>
+        app:cornerRadius="10dp"
+        android:visibility="visible" />
 
-    <!-- Equip / Unequip button -->
+    <!-- Equip / Unequip button (visible when item is owned) -->
     <Button
         android:id="@+id/store_equip_btn"
         android:layout_width="wrap_content"
-        android:layout_height="36dp"
+        android:layout_height="38dp"
         android:text="Equip"
         android:textAllCaps="false"
+        android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:textSize="13sp"
+        android:minWidth="86dp"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
         android:backgroundTint="#00897B"
-        android:visibility="gone"/>
+        app:cornerRadius="10dp"
+        android:visibility="gone" />
 
 </LinearLayout>
