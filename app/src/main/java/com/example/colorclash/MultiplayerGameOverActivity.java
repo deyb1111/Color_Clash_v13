@@ -41,6 +41,7 @@ public class MultiplayerGameOverActivity extends AppCompatActivity {
         TextView scoreText  = findViewById(R.id.mp_score_text);
         TextView goldText   = findViewById(R.id.mp_gold_text);
         Button   btnMenu    = findViewById(R.id.mp_btn_menu);
+        Button   btnNewMatch = findViewById(R.id.mp_btn_new_match);
 
         resultText.setText(iWon ? "🏆 You Win!" : "You Lose");
         resultText.setTextColor(iWon ? 0xFFFFDD22 : 0xFF9999AA);
@@ -54,5 +55,15 @@ public class MultiplayerGameOverActivity extends AppCompatActivity {
             startActivity(new Intent(this, MainActivity.class));
             finish();
         });
+
+        // New Match — the networking session has already been torn down,
+        // so this returns to the multiplayer menu where the player can
+        // quickly re-host or re-join.
+        if (btnNewMatch != null) {
+            btnNewMatch.setOnClickListener(v -> {
+                startActivity(new Intent(this, MultiplayerMenuActivity.class));
+                finish();
+            });
+        }
     }
 }

@@ -64,6 +64,16 @@ public class GameActivity extends AppCompatActivity implements GameView.GameList
         intent.putExtra("winner_score", winner.score);
         intent.putExtra("loser_score",  loser.score);
         intent.putExtra("winner_color", winner.color);
+
+        // Forward the original player setup so GameOverActivity can offer
+        // a Play Again that relaunches the match without going through
+        // OfflineSetupActivity again.
+        Intent src = getIntent();
+        intent.putExtra("player1_name",  src.getStringExtra("player1_name"));
+        intent.putExtra("player2_name",  src.getStringExtra("player2_name"));
+        intent.putExtra("player1_color", src.getIntExtra("player1_color", 0xFFFF0000));
+        intent.putExtra("player2_color", src.getIntExtra("player2_color", 0xFF0000FF));
+
         startActivity(intent);
         finish();
     }

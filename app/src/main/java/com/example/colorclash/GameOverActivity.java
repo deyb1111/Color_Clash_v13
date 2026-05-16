@@ -22,6 +22,13 @@ public class GameOverActivity extends AppCompatActivity {
         int    loserScore  = getIntent().getIntExtra("loser_score",  0);
         int    winnerColor = getIntent().getIntExtra("winner_color", 0xFFFFFFFF);
 
+        // Original setup data, forwarded by GameActivity so Play Again can
+        // relaunch the match without re-entering names/colors.
+        final String p1Name  = getIntent().getStringExtra("player1_name");
+        final String p2Name  = getIntent().getStringExtra("player2_name");
+        final int    p1Color = getIntent().getIntExtra("player1_color", 0xFFFF0000);
+        final int    p2Color = getIntent().getIntExtra("player2_color", 0xFF0000FF);
+
         int winnerGold = winnerScore / GOLD_PER_POINT_DIVISOR;
         int loserGold  = loserScore  / GOLD_PER_POINT_DIVISOR;
 
@@ -44,6 +51,7 @@ public class GameOverActivity extends AppCompatActivity {
         TextView scoreText  = findViewById(R.id.score_text);
         TextView goldText   = findViewById(R.id.gold_text);
         Button   playAgain  = findViewById(R.id.play_again);
+        Button   mainMenu   = findViewById(R.id.btn_main_menu);
 
         winnerText.setText(winner + " Wins!");
         winnerText.setTextColor(winnerColor);
@@ -55,9 +63,29 @@ public class GameOverActivity extends AppCompatActivity {
                 + winner + ": +" + winnerGold + "  |  "
                 + loser  + ": +" + loserGold);
 
+        // Play Again — relaunch the match with the same player setup.
+        // Falls back to the main menu if the setup data was not forwarded
+        // (e.g. older code path).
         playAgain.setOnClickListener(v -> {
-            startActivity(new Intent(this, MainActivity.class));
+            if (p1Name != null && !p1Name.isEmpty()
+                    && p2Name != null && !p2Name.isEmpty()) {
+                Intent rematch = new Intent(this, GameActivity.class);
+                rematch.putExtra("player1_name",  p1Name);
+                rematch.putExtra("player2_name",  p2Name);
+                rematch.putExtra("player1_color", p1Color);
+                rematch.putExtra("player2_color", p2Color);
+                startActivity(rematch);
+            } else {
+                startActivity(new Intent(this, MainActivity.class));
+            }
             finish();
         });
+
+        if (mainMenu != null) {
+            mainMenu.setOnClickListener(v -> {
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+            });
+        }
     }
 }
