@@ -46,6 +46,10 @@ public class MultiplayerMenuActivity extends AppCompatActivity {
         btnHost.setOnClickListener(v -> proceed(true));
         btnJoin.setOnClickListener(v -> proceed(false));
 
+        // Back to Main Menu — closes this activity and returns to MainActivity.
+        Button btnBack = findViewById(R.id.btn_back_mp);
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
+
         requestRequiredPermissions();
     }
 
