@@ -1,83 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<!--
+    Host screen — adaptive landscape layout that mirrors
+    activity_offline_setup.xml.
+
+    Weight distribution (vertical):
+      logo spacer    : 18
+      subtitle       : 6
+      status banner  : 8
+      connection card: 36   (IP info + hint + progress)
+      back button    : 10
+      bottom pad     : 22
+    Total            : 100
+-->
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#0D0D1A"
-    android:fitsSystemWindows="true"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
+    <!-- Full-screen background, matches Offline Mode -->
+    <ImageView
+        android:id="@+id/host_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/bgoffline"
+        android:scaleType="fitXY"
+        android:contentDescription="Host background" />
+
+    <!-- Overlay: all UI content stacked vertically with weights -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:paddingStart="28dp"
-        android:paddingEnd="28dp"
-        android:paddingTop="32dp"
-        android:paddingBottom="24dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <!-- Spacer: logo area -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="18" />
+
+        <!-- Subtitle -->
         <TextView
-            android:id="@+id/host_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🖥 Hosting Game"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF" />
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6"
+            android:text="✦  HOSTING — WAITING FOR PLAYER  ✦"
+            android:textColor="#E0DEFF"
+            android:textSize="10sp"
+            android:letterSpacing="0.14"
+            android:gravity="center"
+            android:shadowColor="#AA6600FF"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="8" />
 
+        <!-- Status banner: kept full-width so long status strings don't get cut off -->
         <TextView
             android:id="@+id/host_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Status: WAITING_FOR_PLAYER"
-            android:textSize="15sp"
-            android:textColor="#66BB6A"
-            android:layout_marginTop="16dp" />
-
-        <TextView
-            android:id="@+id/host_ip_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="16sp"
-            android:textColor="#FFEE44"
-            android:gravity="center"
-            android:visibility="gone"
-            android:background="#1A1A30"
-            android:padding="16dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp" />
-
-        <TextView
-            android:id="@+id/host_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Share the IP address with your opponent.\nThey enter it on the Join screen."
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:text="Status: WAITING_FOR_PLAYER"
             android:textSize="13sp"
-            android:textColor="#9E9EBD"
+            android:textStyle="bold"
+            android:textColor="#66BB6A"
             android:gravity="center"
-            android:layout_marginTop="20dp" />
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:shadowColor="#AA00FF66"
+            android:shadowDx="0"
+            android:shadowDy="0"
+            android:shadowRadius="6"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp" />
 
-        <ProgressBar
-            android:id="@+id/host_progress"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="24dp" />
+        <!-- Connection info card -->
+        <LinearLayout
+            android:id="@+id/host_info_card"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="36"
+            android:orientation="vertical"
+            android:background="@drawable/card_bg_default"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp">
 
+            <TextView
+                android:id="@+id/host_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📡  CONNECTION INFO"
+                android:textStyle="bold"
+                android:textColor="#CCCCCC"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SHARE WITH YOUR OPPONENT"
+                android:textColor="#AAAAAA"
+                android:textSize="8sp"
+                android:letterSpacing="0.08"
+                android:layout_marginTop="3dp" />
+
+            <!-- IP block (filled at runtime; uses the same panel style as the offline EditText) -->
+            <TextView
+                android:id="@+id/host_ip_text"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="3"
+                android:text=""
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:textColor="#FFEE44"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:visibility="gone"
+                android:background="@drawable/edit_text_bg_default"
+                android:padding="10dp"
+                android:shadowColor="#AAFFAA00"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="6"
+                android:layout_marginTop="6dp" />
+
+            <!-- Hint line -->
+            <TextView
+                android:id="@+id/host_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Share the IP address with your opponent.\nThey enter it on the Join screen."
+                android:textSize="11sp"
+                android:textColor="#9E9EBD"
+                android:gravity="center"
+                android:layout_marginTop="6dp" />
+
+            <!-- Progress spinner: small + centered -->
+            <ProgressBar
+                android:id="@+id/host_progress"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="6dp" />
+        </LinearLayout>
+
+        <!-- Back button -->
         <Button
             android:id="@+id/btn_back_host"
-            android:layout_width="150dp"
-            android:layout_height="48dp"
-            android:text="← Back"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10"
+            android:text="🏠  Back to Menu"
+            android:textSize="14sp"
+            android:textStyle="bold"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
-            android:backgroundTint="#333355"
+            android:backgroundTint="#5C6BC0"
             app:cornerRadius="14dp"
-            android:layout_marginTop="24dp" />
+            android:layout_marginStart="120dp"
+            android:layout_marginEnd="120dp"
+            android:layout_marginTop="6dp" />
+
+        <!-- Bottom padding -->
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="22" />
 
     </LinearLayout>
-
-</ScrollView>
+</FrameLayout>
